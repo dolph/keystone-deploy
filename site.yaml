@@ -2,4 +2,4 @@
   hosts: all
   user: root
   roles:
-  - common
+  - bootstrap
