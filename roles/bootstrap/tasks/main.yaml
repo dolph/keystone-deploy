@@ -18,6 +18,7 @@
   template:
     src=auto-upgrades
     dest=/etc/apt/apt.conf.d/20auto-upgrades
+    mode=0644
 
 - name: configure unattended upgrades
   template:
