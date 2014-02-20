@@ -1,0 +1,5 @@
+- name: bootstrap all nodes
+  hosts: all
+  user: root
+  roles:
+  - common

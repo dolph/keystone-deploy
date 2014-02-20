@@ -1,0 +1,2 @@
+- name: wipe message of the day
+  shell: >| /etc/motd
