@@ -1,16 +1,34 @@
 - name: wipe message of the day
-  template: src=message-of-the-day dest=/etc/motd
+  template:
+    src=message-of-the-day
+    dest=/etc/motd
 
 - name: install unattended upgrades
-  apt: pkg=unattended-upgrades state=present update_cache=yes
+  apt:
+    pkg=unattended-upgrades
+    state=present
+    update_cache=yes
 
 - name: configure auto upgrades
-  template: src=auto-upgrades dest=/etc/apt/apt.conf.d/20auto-upgrades
+  template:
+    src=auto-upgrades
+    dest=/etc/apt/apt.conf.d/20auto-upgrades
 
 - name: configure unattended upgrades
-  template: src=unattended-upgrades dest=/etc/apt/apt.conf.d/50unattended-upgrades
+  template:
+    src=unattended-upgrades
+    dest=/etc/apt/apt.conf.d/50unattended-upgrades
 
-# adduser dolph
-# adduser dolph to sudo group
+- name: create an account for dolph
+  user:
+    name=dolph
+    groups=sudo
+    shell=/bin/bash
+
+- name: install authorized ssh key
+  authorized_key:
+    user=dolph
+    key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
 # give passwordless sudo to dolph
-# install pub-key to dolph
+# dolph ALL = NOPASSWD: ALL
