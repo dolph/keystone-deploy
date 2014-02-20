@@ -9,3 +9,8 @@
 
 - name: configure unattended upgrades
   template: src=unattended-upgrades dest=/etc/apt/apt.conf.d/50unattended-upgrades
+
+# adduser dolph
+# adduser dolph to sudo group
+# give passwordless sudo to dolph
+# install pub-key to dolph
