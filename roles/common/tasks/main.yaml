@@ -25,10 +25,10 @@
     groups=sudo
     shell=/bin/bash
 
+- name: give passwordless sudo to dolph
+  lineinfile: dest=/etc/sudoers state=present regexp='^%dolph ALL\=' line='%dolph ALL=(ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+
 - name: install authorized ssh key
   authorized_key:
     user=dolph
     key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-
-# give passwordless sudo to dolph
-# dolph ALL = NOPASSWD: ALL
