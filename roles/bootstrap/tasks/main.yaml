@@ -3,6 +3,11 @@
     src=message-of-the-day
     dest=/etc/motd
 
+- name: install global inputrc
+  template:
+    src=inputrc
+    dest=/etc/inputrc
+
 - name: install unattended upgrades
   apt:
     pkg=unattended-upgrades
