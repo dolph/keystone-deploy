@@ -3,9 +3,8 @@ Bootstrap a Debian Server
 
 To bootstrap a Debian server (`HOSTNAME`, in this case), run:
 
-    ansible-playbook -i "HOSTNAME," bootstrap.yaml
+    ./bootstrap.sh HOSTNAME
 
-Note the trailing comma, which is required. You can also bootstrap multiple
-servers in parallel with:
+You can also bootstrap multiple servers in parallel by using ansible directly:
 
     ansible-playbook -i "HOSTNAME1,HOSTNAME2,HOSTNAME3," bootstrap.yaml
