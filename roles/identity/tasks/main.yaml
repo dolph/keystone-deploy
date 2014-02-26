@@ -31,3 +31,10 @@
   with_items:
     - git
     - apache2
+    - libapache2-mod-wsgi
+
+- name: checkout the master branch of keystone
+  git:
+    repo=https://github.com/openstack/keystone.git
+    dest=/opt/keystone
+    force=yes
