@@ -4,8 +4,8 @@ Deploy Keystone from source
 This illustrates a deployment of OpenStack Keystone from source, primarily
 geared towards testing recommended production configurations.
 
-Testing
--------
+Usage
+-----
 
 To run against a Vagrant box, just run:
 
