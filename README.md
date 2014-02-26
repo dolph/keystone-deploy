@@ -1,13 +1,15 @@
 Deploy Keystone from source
 ===========================
 
-This illustrates a deployment of OpenStack Keystone from source, primarily
-geared towards testing recommended production configurations.
+This illustrates a deployment of [OpenStack
+Keystone](http://keystone.openstack.org/) from
+[source](https://github.com/openstack/keystone), primarily geared towards
+testing recommended production configurations.
 
 Usage
 -----
 
-To run against a Vagrant box, just run:
+To run against a [Vagrant](http://www.vagrantup.com/) box, just run:
 
     vagrant up
 
