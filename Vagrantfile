@@ -5,16 +5,8 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  # All Vagrant configuration is done here. The most common configuration
-  # options are documented and commented below. For a complete reference,
-  # please see the online documentation at vagrantup.com.
-
-  # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "wheezy64"
-
-  # The url from where the 'config.vm.box' box will be fetched if it
-  # doesn't already exist on the user's system.
-  # config.vm.box_url = "http://domain.com/path/to/above.box"
+  config.vm.box_url = "http://925d6bfd5e1189ef9e46-7f075c191524c4ac73c453596e6e8394.r48.cf1.rackcdn.com/wheezy64-debian-7.4.0-amd64.box"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
