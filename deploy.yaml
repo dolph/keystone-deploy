@@ -1,0 +1,4 @@
+- name: deploy keystone
+  hosts: all
+  roles:
+  - identity

@@ -1,4 +1,0 @@
-- name: bootstrap all nodes
-  hosts: all
-  roles:
-  - bootstrap
