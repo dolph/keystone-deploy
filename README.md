@@ -1,21 +1,16 @@
-Bootstrap a Debian Server
-=========================
+Deploy Keystone from source
+===========================
 
-To bootstrap a Debian server (`HOSTNAME`, in this case), run:
-
-    ./bootstrap.sh HOSTNAME
-
-You can also bootstrap multiple servers in parallel by using ansible directly:
-
-    ansible-playbook -i "HOSTNAME1,HOSTNAME2,HOSTNAME3," --user="root" bootstrap.yaml
+This illustrates a deployment of OpenStack Keystone from source, primarily
+geared towards testing recommended production configurations.
 
 Testing
 -------
 
-Bootstrap a vagrant box with:
+To run against a Vagrant box, just run:
 
     vagrant up
 
-When it's ready, you'll be able to use the box:
+When it's ready, you'll be able to use the vagrant box as an identity endpoint:
 
-    ssh 192.168.111.222
+    http://192.168.111.222:35357/
