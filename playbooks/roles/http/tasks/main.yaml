@@ -87,3 +87,6 @@
     requirements=/opt/keystone/requirements.txt
     state=latest
   notify: restart apache2
+
+- name: run database migrations
+  shell: keystone-manage db_sync
