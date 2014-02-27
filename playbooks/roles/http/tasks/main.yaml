@@ -48,7 +48,7 @@
     dest=/var/keystone/keystone.wsgi
     owner=www-data
     group=www-data
-    mode=0600
+    mode=0400
   notify: restart apache2
 
 - name: deploy keystone.conf
@@ -57,7 +57,7 @@
     dest=/etc/keystone/keystone.conf
     owner=www-data
     group=www-data
-    mode=0600
+    mode=0400
   notify: restart apache2
 
 - name: deploy pipeline configuration
@@ -66,7 +66,7 @@
     dest=/etc/keystone/paste.ini
     owner=www-data
     group=www-data
-    mode=0600
+    mode=0400
   notify: restart apache2
 
 - name: deploy policy.json
@@ -75,8 +75,40 @@
     dest=/etc/keystone/policy.json
     owner=www-data
     group=www-data
-    mode=0600
+    mode=0400
   notify: restart apache2
+
+- name: deploy public CA certificate
+  template:
+    src=ca.pem
+    dest=/etc/keystone/ca.pem
+    owner=www-data
+    group=www-data
+    mode=0400
+
+- name: deploy private CA certificate
+  template:
+    src=ca_key.pem
+    dest=/etc/keystone/ca_key.pem
+    owner=www-data
+    group=www-data
+    mode=0400
+
+- name: deploy public signing certificate
+  template:
+    src=signing.pem
+    dest=/etc/keystone/signing.pem
+    owner=www-data
+    group=www-data
+    mode=0400
+
+- name: deploy private signing key
+  template:
+    src=signing_key.pem
+    dest=/etc/keystone/signing_key.pem
+    owner=www-data
+    group=www-data
+    mode=0400
 
 - name: install keystone
   shell: cd /opt/keystone && python setup.py install
