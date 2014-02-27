@@ -17,13 +17,15 @@ class TestCase(unittest.TestCase):
         group = c.groups.create(domain=domain, name='admin')
         self.addCleanup(c.groups.delete, group)
 
+        c.roles.grant(group=group, domain=domain, role=role)
+        self.addCleanup(c.roles.revoke, group=group, domain=domain, role=role)
+
         password = 'password'
         user = c.users.create(
             domain=domain, name='admin', password=password)
         self.addCleanup(c.users.delete, user)
 
-        c.roles.grant(user=user, domain=domain, role=role)
-        self.addCleanup(c.roles.revoke, user=user, domain=domain, role=role)
+        c.users.add_to_group(user=user, group=group)
 
         service = c.services.create(
             name='Keystone', type='identity')
@@ -44,12 +46,14 @@ class TestCase(unittest.TestCase):
             username=user.name,
             password=password,
             auth_url='http://192.168.111.222:35357/v3')
+        self.assertTrue(self.c.auth_token)
 
         self.c = client.Client(
             user_id=user.id,
             password=password,
             domain_id=domain.id,
             auth_url='http://192.168.111.222:35357/v3')
+        self.assertTrue(self.c.auth_token)
 
     def test_domain_list(self):
         self.assertEqual(1, len(self.c.domains.list()))
