@@ -32,9 +32,85 @@
     - git
     - apache2
     - libapache2-mod-wsgi
+    - python-dev
+    - python-pip
+    - libxml2-dev  # only required for XML support
+    - libxslt1-dev  # only required for XML support
+  notify: restart httpd
 
 - name: checkout the master branch of keystone
   git:
     repo=https://github.com/openstack/keystone.git
     dest=/opt/keystone
     force=yes
+  notify: restart httpd
+
+- name: deploy a virtual host
+  template:
+    src=keystone.vhost
+    dest=/etc/apache2/sites-enabled/keystone
+  notify: restart httpd
+
+- name: establish a configuration directory for keystone
+  file:
+    path=/etc/keystone
+    state=directory
+    owner=www-data
+    group=www-data
+    mode=0755
+  notify: restart httpd
+
+- name: create a dir for wsgi scripts
+  file:
+    path=/var/keystone
+    state=directory
+    owner=www-data
+    group=www-data
+    mode=0755
+  notify: restart httpd
+
+- name: deploy a wsgi script
+  template:
+    src=keystone.wsgi
+    dest=/var/keystone/keystone.wsgi
+    owner=www-data
+    group=www-data
+    mode=0600
+  notify: restart httpd
+
+- name: deploy keystone.conf
+  template:
+    src=keystone.conf
+    dest=/etc/keystone/keystone.conf
+    owner=www-data
+    group=www-data
+    mode=0600
+  notify: restart httpd
+
+- name: deploy pipeline configuration
+  template:
+    src=paste.ini
+    dest=/etc/keystone/paste.ini
+    owner=www-data
+    group=www-data
+    mode=0600
+  notify: restart httpd
+
+- name: deploy policy.json
+  template:
+    src=policy.json
+    dest=/etc/keystone/policy.json
+    owner=www-data
+    group=www-data
+    mode=0600
+  notify: restart httpd
+
+- name: install keystone
+  shell: cd /opt/keystone && python setup.py develop
+  notify: restart httpd
+
+- name: install python requirements
+  pip:
+    requirements=/opt/keystone/requirements.txt
+    state=latest
+  notify: restart httpd

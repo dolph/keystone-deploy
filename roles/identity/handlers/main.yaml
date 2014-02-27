@@ -1,0 +1,2 @@
+- name: restart httpd
+  shell: /etc/init.d/apache2 restart

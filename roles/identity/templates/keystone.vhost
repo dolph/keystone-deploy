@@ -1,0 +1,16 @@
+Listen 35357
+
+<VirtualHost *:35357>
+    WSGIScriptAlias / /var/keystone/keystone.wsgi
+    WSGIDaemonProcess keystone processes=3 threads=3 display-name=keystone
+    WSGIProcessGroup keystone
+
+    ErrorLog /var/log/apache2/keystone.error.log
+    LogLevel info
+    CustomLog /var/log/apache2/keystone.access.log combined
+
+    <Directory /var/keystone>
+        Order allow,deny
+        Allow from all
+    </Directory>
+</VirtualHost>
