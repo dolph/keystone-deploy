@@ -1,6 +1,3 @@
-- name: deploy keystone
-  hosts: all
-  roles:
-  - common
-  - sql
-  - http
+- include: playbooks/common.yaml
+- include: playbooks/sql.yaml
+- include: playbooks/http.yaml
