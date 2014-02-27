@@ -21,3 +21,10 @@ Once the vagrant box is up, you can also run individual playbooks against it,
 for example:
 
     ansible-playbook -i "vagrant@192.168.111.222," --sudo playbooks/sql.yaml
+
+Testing
+-------
+
+To exercise the deployment, run:
+
+    python -m unittest discover
