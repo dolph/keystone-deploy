@@ -3,3 +3,14 @@
     pkg={{ item }}
   with_items:
     - mysql-server
+    - python-mysqldb
+
+- name: create a database for keystone
+  mysql_db: name=keystone state=present
+
+- name: create insecure keystone user
+  mysql_user:
+    name=keystone
+    host=localhost
+    password=keystone
+    priv=keystone.*:ALL
