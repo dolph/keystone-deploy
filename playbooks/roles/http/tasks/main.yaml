@@ -120,5 +120,13 @@
     state=latest
   notify: restart apache2
 
+- name: install extra python requirements
+  pip:
+    name={{ item }}
+    state=latest
+  with_items:
+  - python-memcached
+  notify: restart apache2
+
 - name: run database migrations
   shell: keystone-manage db_sync
