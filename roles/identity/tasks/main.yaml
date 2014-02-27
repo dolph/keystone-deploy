@@ -106,10 +106,10 @@
   notify: restart httpd
 
 - name: install keystone
-  shell: cd /opt/keystone && python setup.py develop
+  shell: cd /opt/keystone && python setup.py install
   notify: restart httpd
 
-- name: install python requirements
+- name: install the latest versions of any python requirements
   pip:
     requirements=/opt/keystone/requirements.txt
     state=latest
