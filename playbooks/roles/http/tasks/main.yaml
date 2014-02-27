@@ -9,20 +9,20 @@
     - python-pip
     - libxml2-dev  # only required for XML support
     - libxslt1-dev  # only required for XML support
-  notify: restart httpd
+  notify: restart apache2
 
 - name: checkout the master branch of keystone
   git:
     repo=https://github.com/openstack/keystone.git
     dest=/opt/keystone
     force=yes
-  notify: restart httpd
+  notify: restart apache2
 
 - name: deploy a virtual host
   template:
     src=keystone.vhost
     dest=/etc/apache2/sites-enabled/keystone
-  notify: restart httpd
+  notify: restart apache2
 
 - name: establish a configuration directory for keystone
   file:
@@ -31,7 +31,7 @@
     owner=www-data
     group=www-data
     mode=0755
-  notify: restart httpd
+  notify: restart apache2
 
 - name: create a dir for wsgi scripts
   file:
@@ -40,7 +40,7 @@
     owner=www-data
     group=www-data
     mode=0755
-  notify: restart httpd
+  notify: restart apache2
 
 - name: deploy a wsgi script
   template:
@@ -49,7 +49,7 @@
     owner=www-data
     group=www-data
     mode=0600
-  notify: restart httpd
+  notify: restart apache2
 
 - name: deploy keystone.conf
   template:
@@ -58,7 +58,7 @@
     owner=www-data
     group=www-data
     mode=0600
-  notify: restart httpd
+  notify: restart apache2
 
 - name: deploy pipeline configuration
   template:
@@ -67,7 +67,7 @@
     owner=www-data
     group=www-data
     mode=0600
-  notify: restart httpd
+  notify: restart apache2
 
 - name: deploy policy.json
   template:
@@ -76,14 +76,14 @@
     owner=www-data
     group=www-data
     mode=0600
-  notify: restart httpd
+  notify: restart apache2
 
 - name: install keystone
   shell: cd /opt/keystone && python setup.py install
-  notify: restart httpd
+  notify: restart apache2
 
 - name: install the latest versions of any python requirements
   pip:
     requirements=/opt/keystone/requirements.txt
     state=latest
-  notify: restart httpd
+  notify: restart apache2

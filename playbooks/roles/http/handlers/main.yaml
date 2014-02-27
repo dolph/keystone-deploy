@@ -1,2 +1,4 @@
-- name: restart httpd
-  shell: /etc/init.d/apache2 restart
+- name: restart apache2
+  service:
+    name=apache2
+    state=restarted
