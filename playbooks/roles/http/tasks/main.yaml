@@ -18,10 +18,22 @@
     force=yes
   notify: restart apache2
 
-- name: deploy a virtual host
+- name: remove the default virtual host
+  file:
+    path=/etc/apache2/sites-enabled/000-default
+    state=absent
+  notify: restart apache2
+
+- name: deploy a keystone virtual host
   template:
     src=keystone.vhost
     dest=/etc/apache2/sites-enabled/keystone
+  notify: restart apache2
+
+- name: deploy an echo virtual host
+  template:
+    src=echo.vhost
+    dest=/etc/apache2/sites-enabled/echo
   notify: restart apache2
 
 - name: establish a configuration directory for keystone
@@ -33,7 +45,7 @@
     mode=0755
   notify: restart apache2
 
-- name: create a dir for wsgi scripts
+- name: create a dir for keystone wsgi scripts
   file:
     path=/var/keystone
     state=directory
@@ -42,10 +54,28 @@
     mode=0755
   notify: restart apache2
 
-- name: deploy a wsgi script
+- name: create a dir for echo wsgi scripts
+  file:
+    path=/var/echo
+    state=directory
+    owner=www-data
+    group=www-data
+    mode=0755
+  notify: restart apache2
+
+- name: deploy a keystone wsgi script
   template:
     src=keystone.wsgi
     dest=/var/keystone/keystone.wsgi
+    owner=www-data
+    group=www-data
+    mode=0400
+  notify: restart apache2
+
+- name: deploy an echo wsgi script
+  template:
+    src=echo.py
+    dest=/var/echo/echo.py
     owner=www-data
     group=www-data
     mode=0400

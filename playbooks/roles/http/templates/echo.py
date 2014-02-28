@@ -21,4 +21,4 @@ def echo_app(environ, start_response):
     yield json.dumps(environment, indent=2)
 
 
-app = auth_token.AuthProtocol(echo_app, AUTH_TOKEN_CONF)
+application = auth_token.AuthProtocol(echo_app, AUTH_TOKEN_CONF)
