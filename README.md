@@ -29,6 +29,8 @@ it, for example:
 Testing
 -------
 
+[![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=master)](https://travis-ci.org/dolph/keystone-deploy)
+
 To exercise the Vagrant deployment, run:
 
     python -m unittest discover
