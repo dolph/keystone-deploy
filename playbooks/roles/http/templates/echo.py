@@ -6,7 +6,7 @@ respond with all the environment variables presented to it by ``auth_token``.
 import json
 import logging
 
-from keystoneclient.middleware import auth_token
+from keystonemiddleware import auth_token
 
 
 logging.basicConfig()

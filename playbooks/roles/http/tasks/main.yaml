@@ -156,6 +156,8 @@
     state=latest
   with_items:
   - python-memcached
+  - keystonemiddleware
+  - pycrypto
   notify: restart apache2
 
 - name: run database migrations
