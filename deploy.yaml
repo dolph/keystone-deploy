@@ -1,3 +1,2 @@
-- include: playbooks/common.yaml
 - include: playbooks/sql.yaml
 - include: playbooks/http.yaml
