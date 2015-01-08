@@ -1,14 +1,18 @@
+import os
 import unittest
 
 from keystoneclient.v3 import client
 import requests
 
 
+OS_AUTH_URL = os.environ.get('OS_AUTH_URL', 'http://192.168.111.222:35357/v3')
+
+
 class TestCase(unittest.TestCase):
     def setUp(self):
         c = client.Client(
             token='ADMIN',
-            endpoint='http://192.168.111.222:35357/v3')
+            endpoint=OS_AUTH_URL)
 
         domain = c.domains.get('default')
 
