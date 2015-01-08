@@ -3,5 +3,5 @@ python:
   - '2.7'
 install:
   - sudo apt-get install ansible
-  - ansible-playbook --connection=local --inventory-file='localhost,' deploy.yaml
+  - ansible-playbook --connection=local --inventory-file='localhost,' --sudo deploy.yaml
 script: OS_AUTH_URL='http://localhost:35357/v3' python -m unittest discover
