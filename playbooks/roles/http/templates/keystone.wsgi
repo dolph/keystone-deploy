@@ -17,12 +17,13 @@ import os
 
 from paste import deploy
 
-from keystone.openstack.common import gettextutils
+from oslo import i18n
 
-# NOTE(blk-u):
-# gettextutils.install() must run to set _ before importing any modules that
-# contain static translated strings.
-gettextutils.install('keystone', lazy=True)
+# NOTE(dstanek): i18n.enable_lazy() must be called before
+# keystone.i18n._() is called to ensure it has the desired lazy lookup
+# behavior. This includes cases, like keystone.exceptions, where
+# keystone.i18n._() is called at import time.
+i18n.enable_lazy()
 
 from keystone.common import dependency
 from keystone.common import environment
