@@ -2,7 +2,6 @@ language: python
 python:
   - '2.7'
 install:
-  - sudo apt-get install ansible
-  - pip install python-keystoneclient
+  - pip install -r requirements.txt
   - ansible-playbook --connection=local --inventory-file='localhost,' --sudo deploy.yaml
 script: OS_AUTH_URL='http://localhost:35357/v3' python -m unittest discover
