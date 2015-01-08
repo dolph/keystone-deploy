@@ -5,14 +5,17 @@ from keystoneclient.v3 import client
 import requests
 
 
-OS_AUTH_URL = os.environ.get('OS_AUTH_URL', 'http://192.168.111.222:35357/v3')
+HOST = os.environ.get('HOST', '192.168.111.222')
+ECHO_ENDPOINT = os.environ.get('ECHO_ENDPOINT', 'http://%s/' % HOST)
+KEYSTONE_ENDPOINT = os.environ.get(
+    'KEYSTONE_ENDPOINT', 'http://%s:35357/' % HOST)
 
 
 class TestCase(unittest.TestCase):
     def setUp(self):
         c = client.Client(
             token='ADMIN',
-            endpoint=OS_AUTH_URL)
+            endpoint=KEYSTONE_ENDPOINT + 'v3')
 
         domain = c.domains.get('default')
 
@@ -46,32 +49,32 @@ class TestCase(unittest.TestCase):
         public_endpoint = c.endpoints.create(
             service=service,
             interface='public',
-            url='http://192.168.111.222:35357/v3')
+            url=KEYSTONE_ENDPOINT + 'v3')
         self.addCleanup(c.endpoints.delete, public_endpoint)
         admin_endpoint = c.endpoints.create(
             service=service,
             interface='admin',
-            url='http://192.168.111.222:35357/v3')
+            url=KEYSTONE_ENDPOINT + 'v3')
         self.addCleanup(c.endpoints.delete, admin_endpoint)
 
         self.unscoped = client.Client(
             username=user.name,
             password=password,
-            auth_url='http://192.168.111.222:35357/v3')
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
         self.assertTrue(self.unscoped.auth_token)
 
         self.project_scoped = client.Client(
             user_id=user.id,
             password=password,
             project_id=project.id,
-            auth_url='http://192.168.111.222:35357/v3')
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
         self.assertTrue(self.project_scoped.auth_token)
 
         self.domain_scoped = client.Client(
             user_id=user.id,
             password=password,
             domain_id=domain.id,
-            auth_url='http://192.168.111.222:35357/v3')
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
         self.assertTrue(self.domain_scoped.auth_token)
 
     def test_domain_list(self):
@@ -79,7 +82,7 @@ class TestCase(unittest.TestCase):
 
     def test_unscoped_request(self):
         r = requests.get(
-            'http://192.168.111.222/',
+            ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.unscoped.auth_token})
 
         # this test is broken because auth_token is dependent on API v2
@@ -93,7 +96,7 @@ class TestCase(unittest.TestCase):
 
     def test_project_scoped_request(self):
         r = requests.get(
-            'http://192.168.111.222/',
+            ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.project_scoped.auth_token})
 
         # this test is broken because auth_token is dependent on API v2
@@ -109,7 +112,7 @@ class TestCase(unittest.TestCase):
 
     def test_domain_scoped_request(self):
         r = requests.get(
-            'http://192.168.111.222/',
+            ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.domain_scoped.auth_token})
 
         # this test is broken because auth_token is dependent on API v2
