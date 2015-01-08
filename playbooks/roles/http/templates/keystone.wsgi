@@ -15,8 +15,6 @@
 import logging
 import os
 
-from paste import deploy
-
 from oslo import i18n
 
 # NOTE(dstanek): i18n.enable_lazy() must be called before
@@ -25,6 +23,7 @@ from oslo import i18n
 # keystone.i18n._() is called at import time.
 i18n.enable_lazy()
 
+from keystone import backends
 from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import sql
@@ -48,13 +47,12 @@ if CONF.debug:
     CONF.log_opt_values(log.getLogger(CONF.prog), logging.DEBUG)
 
 
-drivers = service.load_backends()
+drivers = backends.load_backends()
 
 # NOTE(ldbragst): 'application' is required in this context by WSGI spec.
 # The following is a reference to Python Paste Deploy documentation
 # http://pythonpaste.org/deploy/
-# application = deploy.loadapp('config:%s' % config.find_paste_config(),
-application = deploy.loadapp('config:%s' % '/etc/keystone/paste.ini',
+application = service.loadapp('config:%s' % config.find_paste_config(),
                              name='app')
 
 dependency.resolve_future_dependencies()
