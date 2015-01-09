@@ -29,7 +29,11 @@ it, for example:
 Testing
 -------
 
-[![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=master)](https://travis-ci.org/dolph/keystone-deploy)
+
+| Branch  | Status                                                                                                                         |
+|---------|--------------------------------------------------------------------------------------------------------------------------------|
+| master  | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=master)](https://travis-ci.org/dolph/keystone-deploy)  |
+| v3-only | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=v3-only)](https://travis-ci.org/dolph/keystone-deploy) |
 
 To exercise the Vagrant deployment, run:
 
