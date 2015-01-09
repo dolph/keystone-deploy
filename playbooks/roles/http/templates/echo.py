@@ -13,9 +13,7 @@ logging.basicConfig()
 
 
 AUTH_TOKEN_CONF = {
-    'auth_protocol': 'http',
-    'auth_host': '192.168.111.222',
-    'auth_port': 35357,
+    'identity_uri': 'http://192.168.111.222:35357/',
     'auth_uri': 'http://192.168.111.222:35357/',
     'auth_version': 'v3.0',
     'admin_user': 'admin',
