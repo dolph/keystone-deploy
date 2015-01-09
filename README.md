@@ -29,7 +29,10 @@ it, for example:
 Testing
 -------
 
-This repository is divided into several feature branches, wherein each feature branch demonstrates and tests a deployment variation, where the `master` branch is a vanilla deployment. All feature branches should be regularly rebased onto the master branch.
+This repository is divided into several feature branches, wherein each feature
+branch demonstrates and tests a deployment variation. The `master` branch
+represents a vanilla deployment. All feature branches should be regularly
+rebased onto the master branch.
 
 | Branch  | Status                                                                                                                         |
 |---------|--------------------------------------------------------------------------------------------------------------------------------|
