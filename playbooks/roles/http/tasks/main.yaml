@@ -65,14 +65,17 @@
     mode=0755
   notify: restart apache2
 
-- name: deploy a keystone wsgi script
+- name: deploy keystone wsgi scripts
   template:
     src=keystone.wsgi
-    dest=/var/keystone/keystone.wsgi
+    dest=/var/keystone/{{ item }}
     owner=www-data
     group=www-data
     mode=0400
   notify: restart apache2
+  with_items:
+    - main
+    - admin
 
 - name: deploy an echo wsgi script
   template:
