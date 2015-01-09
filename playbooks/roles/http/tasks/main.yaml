@@ -11,8 +11,6 @@
     - libapache2-mod-wsgi
     - python-dev
     - python-pip
-    - libxml2-dev  # only required for XML support
-    - libxslt1-dev  # only required for XML support
   notify: restart apache2
 
 - name: checkout the master branch of keystone
