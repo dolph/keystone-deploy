@@ -2,7 +2,6 @@ import os
 import unittest
 import uuid
 
-from keystoneclient.v2_0 import client as v2_client
 from keystoneclient.v3 import client as v3_client
 import requests
 
@@ -187,20 +186,6 @@ class Common(object):
             '%s_id' % self.project_term: self.project.id,
             'auth_url': KEYSTONE_ENDPOINT + self.version})
         self.assertProjectScopedToken(project_scoped.auth_token)
-
-
-class V2(Base, Common):
-    @property
-    def version(self):
-        return 'v2.0'
-
-    @property
-    def client(self):
-        return v2_client
-
-    @property
-    def project_term(self):
-        return 'project'
 
 
 class V3(Base, Common):

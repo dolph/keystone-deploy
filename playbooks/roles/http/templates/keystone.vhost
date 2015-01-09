@@ -1,20 +1,4 @@
-Listen 5000
 Listen 35357
-
-<VirtualHost *:5000>
-    WSGIScriptAlias / /var/keystone/main
-    WSGIDaemonProcess keystone-main processes=3 threads=3 display-name=keystone-main
-    WSGIProcessGroup keystone-main
-
-    ErrorLog /var/log/apache2/keystone-main.error.log
-    LogLevel info
-    CustomLog /var/log/apache2/keystone-main.access.log combined
-
-    <Directory /var/keystone>
-        Order allow,deny
-        Allow from all
-    </Directory>
-</VirtualHost>
 
 <VirtualHost *:35357>
     WSGIScriptAlias / /var/keystone/admin
