@@ -13,8 +13,8 @@ logging.basicConfig()
 
 
 AUTH_TOKEN_CONF = {
-    'identity_uri': 'http://192.168.111.222:35357/',
-    'auth_uri': 'http://192.168.111.222:35357/',
+    'identity_uri': 'http://{{ ansible_default_ipv4["address"] }}:35357/',
+    'auth_uri': 'http://{{ ansible_default_ipv4["address"] }}:35357/',
     'auth_version': 'v3.0',
     'admin_user': 'admin',
     'admin_password': 'password',
