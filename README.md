@@ -29,12 +29,17 @@ it, for example:
 Testing
 -------
 
+This repository is divided into several feature branches, wherein each feature branch demonstrates and tests a deployment variation, where the `master` branch is a vanilla deployment. All feature branches should be regularly rebased onto the master branch.
 
 | Branch  | Status                                                                                                                         |
 |---------|--------------------------------------------------------------------------------------------------------------------------------|
 | master  | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=master)](https://travis-ci.org/dolph/keystone-deploy)  |
 | v3-only | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=v3-only)](https://travis-ci.org/dolph/keystone-deploy) |
 
-To exercise the Vagrant deployment, run:
+To exercise a Vagrant deployment as created above, run:
 
     python -m unittest discover
+
+To exercise a deployment on an arbitrary host, run:
+
+    HOST=keystone.example.com python -m unittest discover
