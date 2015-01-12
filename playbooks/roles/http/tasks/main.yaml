@@ -105,6 +105,38 @@
     - six  # workaround for debian wheezy?
   notify: restart services
 
+- name: deploy public CA certificate
+  template:
+    src=ca.pem
+    dest=/etc/keystone/ca.pem
+    owner=www-data
+    group=www-data
+    mode=0400
+
+- name: deploy private CA certificate
+  template:
+    src=ca_key.pem
+    dest=/etc/keystone/ca_key.pem
+    owner=www-data
+    group=www-data
+    mode=0400
+
+- name: deploy public signing certificate
+  template:
+    src=signing.pem
+    dest=/etc/keystone/signing.pem
+    owner=www-data
+    group=www-data
+    mode=0400
+
+- name: deploy private signing key
+  template:
+    src=signing_key.pem
+    dest=/etc/keystone/signing_key.pem
+    owner=www-data
+    group=www-data
+    mode=0400
+
 - name: install python projects
   shell: cd /opt/{{ item }} && python setup.py install
   with_items:
