@@ -1,0 +1,24 @@
+[mysqld]
+bind-address=0.0.0.0
+default_storage_engine=InnoDB
+binlog_format=ROW
+innodb_autoinc_lock_mode=2
+
+wsrep_on=ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_provider_options="gcache.size=128M;gcache.page_size=32M;"
+wsrep_cluster_address="gcomm://{{ ','.join(groups['db']) }}"
+wsrep_cluster_name="keystone"
+wsrep_node_address="{{ ansible_default_ipv4["address"] }}"
+wsrep_node_name="{{ ansible_hostname }}"
+wsrep_sst_method=rsync
+wsrep_sst_auth={{ wsrep_sst_username }}:{{ wsrep_sst_password }}
+innodb_doublewrite=1
+innodb_flush_log_at_trx_commit=0
+
+# this should be the cluster's load balancer address
+#wsrep_node_incoming_address="192.168.10.2"
+
+# from digital ocean
+query_cache_size=0
+query_cache_type=0

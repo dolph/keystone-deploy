@@ -11,6 +11,8 @@
     - libapache2-mod-wsgi
     - libffi-dev
     - python-dev
+    - python-pip
+    - python-mysqldb
   notify: restart services
 
 - shell: "apache2 -v | grep 'Apache/2.4'"

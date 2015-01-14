@@ -2,19 +2,66 @@
   apt:
     update_cache=yes
 
-- name: install apt packages
+- name: install prerequisites for apt_key and apt_repository
+  apt:
+    pkg=python-software-properties
+
+- name: obtain mariadb key
+  apt_key:
+    url='http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xCBCB082A1BB943DB'
+    state=present
+
+- name: add mariadb repository
+  apt_repository:
+    repo='deb http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.0/debian wheezy main'
+    state=present
+
+- name: update apt cache
+  apt:
+    update_cache=yes
+
+- name: install mariadb galera server
   apt:
     pkg={{ item }}
   with_items:
-    - mysql-server
-    - python-mysqldb
+    - mariadb-client
+    - mariadb-galera-server
+    - galera
+    - rsync
 
-- name: create a database for keystone
-  mysql_db: name=keystone state=present
+- name: start all nodes
+  service:
+    name=mysql
+    state=started
 
-- name: create insecure keystone user
-  mysql_user:
-    name=keystone
-    host=localhost
-    password=keystone
-    priv=keystone.*:ALL
+- name: remove empty users
+  shell: echo "SET wsrep_on=OFF; DELETE FROM mysql.user WHERE user='';" | mysql mysql
+
+- name: create write-set replication user
+  shell: echo "SET wsrep_on=OFF; GRANT ALL ON *.* TO '{{ wsrep_sst_username }}'@'%' IDENTIFIED BY '{{ wsrep_sst_password }}';" | mysql mysql
+
+- name: grant mutual root privileges
+  shell: echo "GRANT ALL ON *.* TO 'root'@'{{ item }}';" | mysql mysql
+  with_items: groups["db"]
+
+- name: stop mysql
+  service:
+    name=mysql
+    state=stopped
+
+- name: configure wsrep
+  template:
+    src=wsrep.cnf
+    dest=/etc/mysql/conf.d/wsrep.cnf
+
+# - name: create a database for keystone
+#   mysql_db:
+#     name=keystone
+#     state=present
+#
+# - name: create insecure keystone user
+#   mysql_user:
+#     name=keystone
+#     host=localhost
+#     password=keystone
+#     priv=keystone.*:ALL

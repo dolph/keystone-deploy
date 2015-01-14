@@ -1,0 +1,45 @@
+- hosts: db
+  gather_facts: false
+  tasks:
+  - name: stop mysql
+    service:
+      name=mysql
+      state=stopped
+
+- hosts: db[0]
+  gather_facts: false
+  tasks:
+  - name: fetch debian maintenance configuration
+    fetch:
+      src=/etc/mysql/debian.cnf
+      dest=/tmp/
+
+  - name: start the first node
+    service:
+      name=mysql
+      state=started
+      arguments=--wsrep-new-cluster
+
+- hosts: db
+  tasks:
+  - name: distribute debian maintenance configuration
+    copy:
+      src=/tmp/{{ groups['db'][0] }}/etc/mysql/debian.cnf
+      dest=/etc/mysql/debian.cnf
+
+- hosts: db
+  gather_facts: false
+  tasks:
+  - name: start secondary nodes
+    service:
+      name=mysql
+      state=started
+
+- hosts: db[0]
+  gather_facts: false
+  tasks:
+  - name: show wsrep status
+    shell: echo "SHOW STATUS LIKE 'wsrep_cluster_size';" | mysql mysql
+    register: cluster_state
+  - name: debug
+    debug: msg='{{ cluster_state.stdout }}'
