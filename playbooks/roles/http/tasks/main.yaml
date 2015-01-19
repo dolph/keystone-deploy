@@ -114,14 +114,11 @@
     mode=0400
   notify: restart apache2
 
-# this is a workaround for older pip distributions
-- name: upgrade to latest pip / setuptools
+# this is a workaround for installing on Debian Wheezy
+- name: install python-six
   pip:
-    name={{ item }}
+    name=six
     state=latest
-  with_items:
-    - pip
-    - setuptools
 
 - name: install keystone
   shell: cd /opt/keystone && python setup.py install
