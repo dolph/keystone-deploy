@@ -113,6 +113,15 @@
     mode=0400
   notify: restart apache2
 
+# this is a workaround for older pip distributions
+- name: upgrade to latest pip / setuptools
+  pip:
+    name={{ item }}
+    state=latest
+  with_items:
+    - pip
+    - setuptools
+
 - name: install keystone
   shell: cd /opt/keystone && python setup.py install
   notify: restart apache2
