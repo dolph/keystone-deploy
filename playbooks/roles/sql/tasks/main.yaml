@@ -16,6 +16,17 @@
     repo='deb http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.0/debian wheezy main'
     state=present
 
+- name: obtain percona key
+  apt_key:
+    keyserver=keys.gnupg.net
+    id=1C4CBDCDCD2EFD2A
+    state=present
+
+- name: add percona repository
+  apt_repository:
+    repo='deb http://repo.percona.com/apt wheezy main'
+    state=present
+
 - name: update apt cache
   apt:
     update_cache=yes
@@ -27,7 +38,9 @@
     - mariadb-client
     - mariadb-galera-server
     - galera
-    - rsync
+    - percona-toolkit
+    - percona-xtrabackup-21
+    - socat
 
 - name: override init script for mysql
   template:
@@ -49,16 +62,20 @@
   shell: echo "GRANT ALL ON *.* TO 'root'@'{{ item }}';" | mysql mysql
   with_items: groups["db"]
 
-- name: fix rsync_wan
-  file:
-    src=/usr/bin/wsrep_sst_rsync
-    dest=/usr/bin/wsrep_sst_rsync_wan
-    state=link
-
 - name: configure wsrep
   template:
     src=wsrep.cnf
     dest=/etc/mysql/conf.d/wsrep.cnf
+  tags:
+  - config
+  - wsrep
+
+- name: set ulimit
+  template:
+    src=limits.conf
+    dest=/etc/security/limits.conf
+  tags:
+  - config
 
 # - name: create a database for keystone
 #   mysql_db:
