@@ -29,6 +29,11 @@
     - galera
     - rsync
 
+- name: override init script for mysql
+  template:
+    src=init.d_mysql
+    dest=/etc/init.d/mysql
+
 - name: start all nodes
   service:
     name=mysql
