@@ -6,6 +6,19 @@
       name=mysql
       state=stopped
 
+  - name: stop rsync
+    service:
+      name=rsync
+      state=stopped
+
+  - name: kill the cluster
+    shell: pkill -9 -f {{ item }}
+    with_items:
+    - maria
+    - mysql
+    - rsync
+    ignore_errors: true
+
 - hosts: db[0]
   gather_facts: false
   tasks:
@@ -34,12 +47,12 @@
     service:
       name=mysql
       state=started
+    environment:
+      MYSQLD_STARTUP_TIMEOUT: 300
 
-- hosts: db[0]
-  gather_facts: false
-  tasks:
-  - name: show wsrep status
-    shell: echo "SHOW STATUS LIKE 'wsrep_cluster_size';" | mysql mysql
-    register: cluster_state
-  - name: debug
-    debug: msg='{{ cluster_state.stdout }}'
+  - name: check cluster size
+    shell: >
+      mysql -e "SHOW STATUS LIKE 'wsrep_cluster_size';" | awk '{ print $2 }' | awk 'FNR == 2 { print }'
+    register: cluster_size
+  - name: cluster size
+    debug: msg='{{ cluster_size.stdout }}'
