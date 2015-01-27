@@ -1,0 +1,22 @@
+- hosts: db[0]
+  gather_facts: false
+  tasks:
+  - name: install python mysql lib
+    apt:
+      pkg={{ item }}
+      state=present
+    with_items:
+      - python-mysqldb # required for mysql modules below
+      - ntp # provide for accurate benchmarking at the db layer
+
+  - name: create a database for keystone
+    mysql_db:
+      name=keystone
+      state=present
+
+  - name: create insecure keystone user
+    mysql_user:
+      name=keystone
+      host=%
+      password={{ keystone_db_password }}
+      priv=keystone.*:ALL
