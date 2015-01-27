@@ -1,9 +1,21 @@
 Listen 5000
 Listen 35357
 
+<IfModule mpm_worker_module>
+    StartServers {{ ansible_processor_vcpus }}
+    MinSpareThreads 25
+    MaxSpareThreads 75
+    ThreadLimit 64
+    ThreadsPerChild 25
+    MaxClients 150
+    MaxRequestsPerChild 0
+</IfModule>
+
+KeepAliveTimeout 0
+
 <VirtualHost *:5000>
     WSGIScriptAlias / /var/keystone/main
-    WSGIDaemonProcess keystone-main processes=3 threads=3 display-name=keystone-main
+    WSGIDaemonProcess keystone-main processes={{ ansible_processor_vcpus }} threads=25 display-name=keystone-main
     WSGIProcessGroup keystone-main
 
     ErrorLog /var/log/apache2/keystone-main.error.log
@@ -22,7 +34,7 @@ Listen 35357
 
 <VirtualHost *:35357>
     WSGIScriptAlias / /var/keystone/admin
-    WSGIDaemonProcess keystone-admin processes=3 threads=3 display-name=keystone-admin
+    WSGIDaemonProcess keystone-admin processes={{ ansible_processor_vcpus }} threads=25 display-name=keystone-admin
     WSGIProcessGroup keystone-admin
 
     ErrorLog /var/log/apache2/keystone-admin.error.log

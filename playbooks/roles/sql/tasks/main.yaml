@@ -44,10 +44,11 @@
   shell: echo "GRANT ALL ON *.* TO 'root'@'{{ item }}';" | mysql mysql
   with_items: groups["db"]
 
-- name: stop mysql
-  service:
-    name=mysql
-    state=stopped
+- name: fix rsync_wan
+  file:
+    src=/usr/bin/wsrep_sst_rsync
+    dest=/usr/bin/wsrep_sst_rsync_wan
+    state=link
 
 - name: configure wsrep
   template:

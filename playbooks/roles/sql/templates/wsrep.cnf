@@ -11,10 +11,13 @@ wsrep_cluster_address="gcomm://{{ ','.join(groups['db']) }}"
 wsrep_cluster_name="keystone"
 wsrep_node_address="{{ ansible_default_ipv4["address"] }}"
 wsrep_node_name="{{ ansible_hostname }}"
-wsrep_sst_method=rsync
+wsrep_sst_method=rsync_wan
 wsrep_sst_auth={{ wsrep_sst_username }}:{{ wsrep_sst_password }}
 innodb_doublewrite=1
 innodb_flush_log_at_trx_commit=0
+
+# performance tuning
+wsrep_slave_threads={{ ansible_processor_vcpus }}
 
 # this should be the cluster's load balancer address
 #wsrep_node_incoming_address="192.168.10.2"
@@ -22,3 +25,7 @@ innodb_flush_log_at_trx_commit=0
 # from digital ocean
 query_cache_size=0
 query_cache_type=0
+
+# max_connections={{ 3 * (2 * ansible_processor_count + 1) }}
+innodb_buffer_pool_size={{ (0.6 * ansible_memtotal_mb) | round | int }}MB
+innodb_log_file_size={{ (0.2 * ansible_memtotal_mb) | round | int }}MB
