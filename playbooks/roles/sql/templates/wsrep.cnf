@@ -24,9 +24,13 @@ wsrep_slave_threads={{ ansible_processor_vcpus }}
 #wsrep_node_incoming_address="192.168.10.2"
 
 # from digital ocean
-query_cache_size=0
+query_cache_size=0M
 query_cache_type=0
+thread-cache-size=50
+open-files-limit=65535
+table-definition-cache=4096
+table-open-cache=10240
 
-max_connections={{ ansible_processor_cores * ansible_processor_vcpus }}
+max_connections={{ ansible_processor_vcpus }}
 innodb_buffer_pool_size={{ (0.6 * ansible_memtotal_mb) | round | int }}MB
 innodb_log_file_size={{ (0.2 * ansible_memtotal_mb) | round | int }}MB
