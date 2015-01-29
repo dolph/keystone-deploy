@@ -45,6 +45,9 @@
     - echo
     - keystone
   notify: restart services
+  tags:
+  - vhost
+  - config
 
 - name: establish a configuration directory for keystone
   file:
@@ -54,6 +57,8 @@
     group=www-data
     mode=0755
   notify: restart services
+  tags:
+  - config
 
 - name: create dirs for wsgi scripts
   file:
@@ -66,6 +71,8 @@
     - echo
     - keystone
   notify: restart services
+  tags:
+  - config
 
 - name: deploy keystone wsgi scripts
   template:
@@ -78,6 +85,8 @@
   with_items:
     - admin
     - main
+  tags:
+  - config
 
 - name: deploy an echo wsgi script
   template:
@@ -87,6 +96,8 @@
     group=www-data
     mode=0400
   notify: restart services
+  tags:
+  - config
 
 - name: deploy keystone configuration files
   template:
@@ -100,6 +111,14 @@
     - paste.ini
     - policy.json
   notify: restart services
+  tags:
+  - config
+
+# this is a workaround for older pip distributions
+- name: upgrade to latest pip / setuptools
+  pip:
+    name={{ item }}
+    state=latest
 
 - name: install extra python requirements
   pip:
