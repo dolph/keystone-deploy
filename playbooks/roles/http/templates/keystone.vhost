@@ -15,7 +15,7 @@ KeepAliveTimeout 0
 
 <VirtualHost *:5000>
     WSGIScriptAlias / /var/keystone/main
-    WSGIDaemonProcess keystone-main processes={{ ansible_processor_vcpus }} threads={{ ansible_processor_vcpus }} display-name=keystone-main
+    WSGIDaemonProcess keystone-main processes={{ 2 * ansible_processor_vcpus }} threads={{ ansible_processor_vcpus }} display-name=keystone-main
     WSGIProcessGroup keystone-main
 
     ErrorLog /var/log/apache2/keystone-main.error.log
@@ -34,7 +34,7 @@ KeepAliveTimeout 0
 
 <VirtualHost *:35357>
     WSGIScriptAlias / /var/keystone/admin
-    WSGIDaemonProcess keystone-admin processes={{ ansible_processor_vcpus }} threads={{ ansible_processor_vcpus }} display-name=keystone-admin
+    WSGIDaemonProcess keystone-admin processes={{ 2 * ansible_processor_vcpus }} threads={{ ansible_processor_vcpus }} display-name=keystone-admin
     WSGIProcessGroup keystone-admin
 
     ErrorLog /var/log/apache2/keystone-admin.error.log
