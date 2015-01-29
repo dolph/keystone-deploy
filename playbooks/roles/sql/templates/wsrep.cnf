@@ -7,7 +7,6 @@ innodb_autoinc_lock_mode=2
 wsrep_on=ON
 wsrep_provider=/usr/lib/galera/libgalera_smm.so
 wsrep_provider_options="gcache.size=128M;gcache.page_size=32M;"
-# wsrep_cluster_address="gcomm://{{ ','.join(groups['db']) }}"
 wsrep_cluster_address="gcomm://{% for node in groups['db'] %}{{ hostvars[node]['ansible_default_ipv4']['address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 wsrep_cluster_name="keystone"
 wsrep_node_address="{{ ansible_default_ipv4["address"] }}"
