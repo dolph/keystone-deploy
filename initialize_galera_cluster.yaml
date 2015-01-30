@@ -20,23 +20,27 @@
       state=started
       arguments=--wsrep-new-cluster
 
-- hosts: db
+- hosts: secondary_db
+  gather_facts: false
   tasks:
   - name: distribute debian maintenance configuration
     copy:
-      src=/tmp/{{ groups['db'][0] }}/etc/mysql/debian.cnf
+      src=/tmp/{{ primary_db_hostname }}/etc/mysql/debian.cnf
       dest=/etc/mysql/debian.cnf
 
-- hosts: db
+- hosts: secondary_db
   gather_facts: false
+  serial: 1
   tasks:
   - name: start secondary nodes
     service:
       name=mysql
       state=started
-    environment:
-      MYSQLD_STARTUP_TIMEOUT: 300
+      arguments=--wsrep_sst_donor={{ primary_db_hostname }}
 
+- hosts: db
+  gather_facts: false
+  tasks:
   - name: check cluster size
     shell: >
       mysql -e "SHOW STATUS LIKE 'wsrep_cluster_size';" | awk '{ print $2 }' | awk 'FNR == 2 { print }'
