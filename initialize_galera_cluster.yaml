@@ -6,19 +6,6 @@
       name=mysql
       state=stopped
 
-  - name: stop rsync
-    service:
-      name=rsync
-      state=stopped
-
-  - name: kill the cluster
-    shell: pkill -9 -f {{ item }}
-    with_items:
-    - maria
-    - mysql
-    - rsync
-    ignore_errors: true
-
 - hosts: db[0]
   gather_facts: false
   tasks:
