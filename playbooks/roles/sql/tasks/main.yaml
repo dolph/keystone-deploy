@@ -13,7 +13,7 @@
 
 - name: add mariadb repository
   apt_repository:
-    repo='deb http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.0/debian wheezy main'
+    repo='deb http://nyc2.mirrors.digitalocean.com/mariadb/repo/5.5/debian wheezy main'
     state=present
 
 - name: obtain percona key
@@ -35,9 +35,8 @@
   apt:
     pkg={{ item }}
   with_items:
-    - mariadb-client
-    - mariadb-galera-server
-    - galera
+    - mariadb-client-5.5
+    - mariadb-galera-server-5.5
     - percona-toolkit
     - percona-xtrabackup-21
     - socat
