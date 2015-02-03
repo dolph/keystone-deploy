@@ -6,6 +6,14 @@
       name=mysql
       state=stopped
 
+  - name: delete log files
+    file:
+      path={{ item }}
+      state=absent
+    with_items:
+      - /var/lib/mysql/ib_logfile0
+      - /var/lib/mysql/ib_logfile1
+
 - hosts: db[0]
   gather_facts: false
   tasks:
