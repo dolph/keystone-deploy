@@ -44,7 +44,6 @@
     service:
       name=mysql
       state=started
-      arguments=--wsrep_sst_donor={{ primary_db_hostname }}
 
 - hosts: db
   gather_facts: false
