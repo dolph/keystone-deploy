@@ -32,4 +32,4 @@ table-open-cache=10240
 
 max_connections={{ (ansible_memtotal_mb / 40) | round | int }}
 innodb_buffer_pool_size={{ (0.6 * ansible_memtotal_mb) | round | int }}MB
-innodb_log_file_size={{ (0.2 * ansible_memtotal_mb) | round | int }}MB
+innodb_log_file_size=48MB
