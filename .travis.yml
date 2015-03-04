@@ -2,7 +2,7 @@ language: python
 python:
   - '2.7'
 install:
-  - ansible-galaxy install -r ansible-requirements.txt
   - pip install -r requirements.txt
+  - ansible-galaxy install -r ansible-requirements.txt
   - ansible-playbook --connection=local --inventory-file='localhost,' --sudo deploy.yaml
 script: HOST='localhost' python -m unittest discover
