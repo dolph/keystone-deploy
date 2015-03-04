@@ -11,6 +11,7 @@
     - libapache2-mod-wsgi
     - python-dev
     - python-pip
+    - libffi-dev
   notify: restart apache2
 
 - name: checkout keystone
