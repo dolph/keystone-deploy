@@ -49,6 +49,24 @@
     mode=0755
   notify: restart services
 
+- name: establish a configuration directory for fernet encryption keys
+  file:
+    path=/etc/keystone/fernet-keys
+    state=directory
+    owner=www-data
+    group=www-data
+    mode=0700
+  notify: restart services
+
+- name: create a dir for keystone wsgi scripts
+  file:
+    path=/var/keystone
+    state=directory
+    owner=www-data
+    group=www-data
+    mode=0755
+  notify: restart services
+
 - name: create dirs for wsgi scripts
   file:
     path=/var/{{ item }}
@@ -115,3 +133,6 @@
 
 - name: run database migrations
   shell: keystone-manage db_sync
+
+- name: setup the fernet encryption keys
+  command: keystone-manage fernet_setup --keystone-user=www-data --keystone-group=www-data
