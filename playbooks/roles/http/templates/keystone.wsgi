@@ -16,6 +16,7 @@ import logging
 import os
 
 from oslo import i18n
+from oslo_log import log
 
 # NOTE(dstanek): i18n.enable_lazy() must be called before
 # keystone.i18n._() is called to ensure it has the desired lazy lookup
@@ -28,7 +29,6 @@ from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import sql
 from keystone import config
-from keystone.openstack.common import log
 from keystone import service
 
 
