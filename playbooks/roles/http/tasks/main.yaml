@@ -125,12 +125,6 @@
   shell: cd /opt/keystone && python setup.py install
   notify: restart apache2
 
-- name: install the latest versions of any python requirements
-  pip:
-    requirements=/opt/keystone/requirements.txt
-    state=latest
-  notify: restart apache2
-
 - name: install extra python requirements
   pip:
     name={{ item }}
