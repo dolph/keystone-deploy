@@ -1,5 +1,6 @@
 import os
 import unittest
+import uuid
 
 from keystoneclient.v3 import client
 import requests
@@ -86,6 +87,12 @@ class TestCase(unittest.TestCase):
         self.assertEqual(self.user.name, context['HTTP_X_USER_NAME'])
         self.assertEqual(self.domain.id, context['HTTP_X_USER_DOMAIN_ID'])
         self.assertEqual(self.domain.name, context['HTTP_X_USER_DOMAIN_NAME'])
+
+    def test_unauthorized_request(self):
+        r = requests.get(
+            ECHO_ENDPOINT,
+            headers={'X-Auth-Token': uuid.uuid4().hex})
+        self.assertEqual(401, r.status_code)
 
     def test_unscoped_request(self):
         r = requests.get(
