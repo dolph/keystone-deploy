@@ -13,15 +13,13 @@ logging.basicConfig()
 
 
 AUTH_TOKEN_CONF = {
-    'identity_uri': 'http://{{ ansible_default_ipv4["address"] }}:35357/',
-    'auth_uri': 'http://{{ ansible_default_ipv4["address"] }}:35357/',
-    'auth_version': 'v3.0',
-    'admin_user': 'admin',
-    'admin_password': 'password',
-    'admin_tenant_name': 'admin',
-    'certfile': None,
-    'keyfile': None,
-    'cafile': None,
+    'auth_plugin': 'password',
+    'auth_url': 'http://{{ ansible_default_ipv4["address"] }}:35357/',
+    'username': 'admin',
+    'user_domain_id': 'default',
+    'password': 'password',
+    'project_name': 'admin',
+    'project_domain_id': 'default',
     'memcached_servers': ['127.0.0.1:11211'],
     'token_cache_time': 300,
     'revocation_cache_time': 60,
