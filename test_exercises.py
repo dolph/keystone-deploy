@@ -83,10 +83,13 @@ class TestCase(unittest.TestCase):
         self.assertEqual(1, len(self.domain_scoped.domains.list()))
 
     def _identity_assertions(self, context):
+        self.assertEqual('Confirmed', context['HTTP_X_IDENTITY_STATUS'])
         self.assertEqual(self.user.id, context['HTTP_X_USER_ID'])
         self.assertEqual(self.user.name, context['HTTP_X_USER_NAME'])
         self.assertEqual(self.domain.id, context['HTTP_X_USER_DOMAIN_ID'])
         self.assertEqual(self.domain.name, context['HTTP_X_USER_DOMAIN_NAME'])
+
+        self.assertNotIn('HTTP_X_SERVICE_IDENTITY_STATUS', context)
 
     def test_unauthorized_request(self):
         r = requests.get(
