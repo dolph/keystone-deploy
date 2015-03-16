@@ -17,30 +17,31 @@ class TestCase(unittest.TestCase):
             token='ADMIN',
             endpoint=KEYSTONE_ENDPOINT + 'v3')
 
-        domain = c.domains.get('default')
+        self.domain = c.domains.get('default')
 
         role = c.roles.create(name='admin')
         self.addCleanup(c.roles.delete, role)
 
-        group = c.groups.create(domain=domain, name='admin')
+        group = c.groups.create(domain=self.domain, name='admin')
         self.addCleanup(c.groups.delete, group)
 
-        c.roles.grant(group=group, domain=domain, role=role)
-        self.addCleanup(c.roles.revoke, group=group, domain=domain, role=role)
-
-        project = c.projects.create(domain=domain, name='admin')
-        self.addCleanup(c.projects.delete, project)
-
-        c.roles.grant(group=group, project=project, role=role)
+        c.roles.grant(group=group, domain=self.domain, role=role)
         self.addCleanup(
-            c.roles.revoke, group=group, project=project, role=role)
+            c.roles.revoke, group=group, domain=self.domain, role=role)
+
+        self.project = c.projects.create(domain=self.domain, name='admin')
+        self.addCleanup(c.projects.delete, self.project)
+
+        c.roles.grant(group=group, project=self.project, role=role)
+        self.addCleanup(
+            c.roles.revoke, group=group, project=self.project, role=role)
 
         password = 'password'
-        user = c.users.create(
-            domain=domain, name='admin', password=password)
-        self.addCleanup(c.users.delete, user)
+        self.user = c.users.create(
+            domain=self.domain, name='admin', password=password)
+        self.addCleanup(c.users.delete, self.user)
 
-        c.users.add_to_group(user=user, group=group)
+        c.users.add_to_group(user=self.user, group=group)
 
         service = c.services.create(
             name='Keystone', type='identity')
@@ -58,55 +59,76 @@ class TestCase(unittest.TestCase):
         self.addCleanup(c.endpoints.delete, admin_endpoint)
 
         self.unscoped = client.Client(
-            username=user.name,
+            username=self.user.name,
             password=password,
             auth_url=KEYSTONE_ENDPOINT + 'v3')
         self.assertTrue(self.unscoped.auth_token)
 
         self.project_scoped = client.Client(
-            user_id=user.id,
+            user_id=self.user.id,
             password=password,
-            project_id=project.id,
+            project_id=self.project.id,
             auth_url=KEYSTONE_ENDPOINT + 'v3')
         self.assertTrue(self.project_scoped.auth_token)
 
         self.domain_scoped = client.Client(
-            user_id=user.id,
+            user_id=self.user.id,
             password=password,
-            domain_id=domain.id,
+            domain_id=self.domain.id,
             auth_url=KEYSTONE_ENDPOINT + 'v3')
         self.assertTrue(self.domain_scoped.auth_token)
 
     def test_domain_list(self):
         self.assertEqual(1, len(self.domain_scoped.domains.list()))
 
+    def _identity_assertions(self, context):
+        self.assertEqual(self.user.id, context['HTTP_X_USER_ID'])
+        self.assertEqual(self.user.name, context['HTTP_X_USER_NAME'])
+        self.assertEqual(self.domain.id, context['HTTP_X_USER_DOMAIN_ID'])
+        self.assertEqual(self.domain.name, context['HTTP_X_USER_DOMAIN_NAME'])
+
     def test_unscoped_request(self):
         r = requests.get(
             ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.unscoped.auth_token})
+        context = r.json()
 
         self.assertEqual(200, r.status_code)
-        self.assertEqual('default', r.json()['HTTP_X_USER_DOMAIN_ID'])
-        self.assertEqual('Default', r.json()['HTTP_X_USER_DOMAIN_NAME'])
+        self._identity_assertions(context)
+        self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_NAME'])
+        self.assertEqual(None, context['HTTP_X_DOMAIN_ID'])
+        self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
 
     def test_project_scoped_request(self):
         r = requests.get(
             ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.project_scoped.auth_token})
+        context = r.json()
 
         self.assertEqual(200, r.status_code)
-        self.assertEqual('default', r.json()['HTTP_X_USER_DOMAIN_ID'])
-        self.assertEqual('Default', r.json()['HTTP_X_USER_DOMAIN_NAME'])
-        self.assertEqual('default', r.json()['HTTP_X_PROJECT_DOMAIN_ID'])
-        self.assertEqual('Default', r.json()['HTTP_X_PROJECT_DOMAIN_NAME'])
+        self._identity_assertions(context)
+        self.assertEqual(self.project.id, context['HTTP_X_PROJECT_ID'])
+        self.assertEqual(self.project.name, context['HTTP_X_PROJECT_NAME'])
+        self.assertEqual(self.domain.id, context['HTTP_X_PROJECT_DOMAIN_ID'])
+        self.assertEqual(
+            self.domain.name, context['HTTP_X_PROJECT_DOMAIN_NAME'])
+        self.assertEqual(None, context['HTTP_X_DOMAIN_ID'])
+        self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
 
     def test_domain_scoped_request(self):
         r = requests.get(
             ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.domain_scoped.auth_token})
+        context = r.json()
 
         self.assertEqual(200, r.status_code)
-        self.assertEqual('default', r.json()['HTTP_X_USER_DOMAIN_ID'])
-        self.assertEqual('Default', r.json()['HTTP_X_USER_DOMAIN_NAME'])
-        self.assertEqual('default', r.json()['HTTP_X_DOMAIN_ID'])
-        self.assertEqual('Default', r.json()['HTTP_X_DOMAIN_NAME'])
+        self._identity_assertions(context)
+        self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_NAME'])
+        self.assertEqual(self.domain.id, context['HTTP_X_DOMAIN_ID'])
+        self.assertEqual(self.domain.name, context['HTTP_X_DOMAIN_NAME'])
