@@ -98,9 +98,9 @@ class TestCase(unittest.TestCase):
         r = requests.get(
             ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.unscoped.auth_token})
-        context = r.json()
-
         self.assertEqual(200, r.status_code)
+
+        context = r.json()
         self._identity_assertions(context)
         self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
         self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
@@ -113,9 +113,9 @@ class TestCase(unittest.TestCase):
         r = requests.get(
             ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.project_scoped.auth_token})
-        context = r.json()
-
         self.assertEqual(200, r.status_code)
+
+        context = r.json()
         self._identity_assertions(context)
         self.assertEqual(self.project.id, context['HTTP_X_PROJECT_ID'])
         self.assertEqual(self.project.name, context['HTTP_X_PROJECT_NAME'])
@@ -129,9 +129,9 @@ class TestCase(unittest.TestCase):
         r = requests.get(
             ECHO_ENDPOINT,
             headers={'X-Auth-Token': self.domain_scoped.auth_token})
-        context = r.json()
-
         self.assertEqual(200, r.status_code)
+
+        context = r.json()
         self._identity_assertions(context)
         self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
         self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
