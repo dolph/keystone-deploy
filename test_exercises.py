@@ -117,11 +117,11 @@ class TestCase(unittest.TestCase):
         self.assertEqual(domain.id, context['HTTP_X_DOMAIN_ID'])
         self.assertEqual(domain.name, context['HTTP_X_DOMAIN_NAME'])
 
-    def validate_token(self, token):
+    def validate_token(self, token, expected_status=200):
         r = requests.get(
             ECHO_ENDPOINT,
             headers={'X-Auth-Token': token})
-        self.assertEqual(200, r.status_code)
+        self.assertEqual(expected_status, r.status_code)
         return r
 
     def assertUnscopedToken(self, token):
@@ -137,10 +137,7 @@ class TestCase(unittest.TestCase):
         self.assertDomainScopedContext(self.domain, r.json())
 
     def test_unauthorized_request(self):
-        r = requests.get(
-            ECHO_ENDPOINT,
-            headers={'X-Auth-Token': uuid.uuid4().hex})
-        self.assertEqual(401, r.status_code)
+        self.validate_token(uuid.uuid4().hex, expected_status=401)
 
     def test_token_rescoping(self):
         # only tests rescoping that involves a narrowing scope
