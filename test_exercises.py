@@ -94,6 +94,33 @@ class TestCase(unittest.TestCase):
             headers={'X-Auth-Token': uuid.uuid4().hex})
         self.assertEqual(401, r.status_code)
 
+    def test_token_rescoping(self):
+        # only tests rescoping that involves a narrowing scope
+
+        unscoped = client.Client(
+            username=self.user.name,
+            password=self.password,
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        self.assertTrue(unscoped.auth_token)
+
+        project_scoped = client.Client(
+            token=unscoped.auth_token,
+            project_id=self.project.id,
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        self.assertTrue(project_scoped.auth_token)
+
+        domain_scoped = client.Client(
+            token=unscoped.auth_token,
+            domain_id=self.domain.id,
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        self.assertTrue(domain_scoped.auth_token)
+
+        project_scoped = client.Client(
+            token=domain_scoped.auth_token,
+            project_id=self.project.id,
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        self.assertTrue(domain_scoped.auth_token)
+
     def test_unscoped_request(self):
         unscoped = client.Client(
             username=self.user.name,
