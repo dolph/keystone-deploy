@@ -37,9 +37,9 @@ class TestCase(unittest.TestCase):
         self.addCleanup(
             c.roles.revoke, group=group, project=self.project, role=role)
 
-        password = 'password'
+        self.password = 'password'
         self.user = c.users.create(
-            domain=self.domain, name='admin', password=password)
+            domain=self.domain, name='admin', password=self.password)
         self.addCleanup(c.users.delete, self.user)
 
         c.users.add_to_group(user=self.user, group=group)
@@ -59,28 +59,15 @@ class TestCase(unittest.TestCase):
             url=KEYSTONE_ENDPOINT + 'v3')
         self.addCleanup(c.endpoints.delete, admin_endpoint)
 
-        self.unscoped = client.Client(
-            username=self.user.name,
-            password=password,
-            auth_url=KEYSTONE_ENDPOINT + 'v3')
-        self.assertTrue(self.unscoped.auth_token)
-
-        self.project_scoped = client.Client(
+    def test_domain_list(self):
+        project_scoped = client.Client(
             user_id=self.user.id,
-            password=password,
+            password=self.password,
             project_id=self.project.id,
             auth_url=KEYSTONE_ENDPOINT + 'v3')
-        self.assertTrue(self.project_scoped.auth_token)
+        self.assertTrue(project_scoped.auth_token)
 
-        self.domain_scoped = client.Client(
-            user_id=self.user.id,
-            password=password,
-            domain_id=self.domain.id,
-            auth_url=KEYSTONE_ENDPOINT + 'v3')
-        self.assertTrue(self.domain_scoped.auth_token)
-
-    def test_domain_list(self):
-        domains = self.domain_scoped.domains.list()
+        domains = project_scoped.domains.list()
 
         self.assertEqual(1, len(domains))
 
@@ -108,9 +95,15 @@ class TestCase(unittest.TestCase):
         self.assertEqual(401, r.status_code)
 
     def test_unscoped_request(self):
+        unscoped = client.Client(
+            username=self.user.name,
+            password=self.password,
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        self.assertTrue(unscoped.auth_token)
+
         r = requests.get(
             ECHO_ENDPOINT,
-            headers={'X-Auth-Token': self.unscoped.auth_token})
+            headers={'X-Auth-Token': unscoped.auth_token})
         self.assertEqual(200, r.status_code)
 
         context = r.json()
@@ -123,9 +116,16 @@ class TestCase(unittest.TestCase):
         self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
 
     def test_project_scoped_request(self):
+        project_scoped = client.Client(
+            user_id=self.user.id,
+            password=self.password,
+            project_id=self.project.id,
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        self.assertTrue(project_scoped.auth_token)
+
         r = requests.get(
             ECHO_ENDPOINT,
-            headers={'X-Auth-Token': self.project_scoped.auth_token})
+            headers={'X-Auth-Token': project_scoped.auth_token})
         self.assertEqual(200, r.status_code)
 
         context = r.json()
@@ -139,9 +139,16 @@ class TestCase(unittest.TestCase):
         self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
 
     def test_domain_scoped_request(self):
+        domain_scoped = client.Client(
+            user_id=self.user.id,
+            password=self.password,
+            domain_id=self.domain.id,
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        self.assertTrue(domain_scoped.auth_token)
+
         r = requests.get(
             ECHO_ENDPOINT,
-            headers={'X-Auth-Token': self.domain_scoped.auth_token})
+            headers={'X-Auth-Token': domain_scoped.auth_token})
         self.assertEqual(200, r.status_code)
 
         context = r.json()
