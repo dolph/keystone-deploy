@@ -80,7 +80,17 @@ class TestCase(unittest.TestCase):
         self.assertTrue(self.domain_scoped.auth_token)
 
     def test_domain_list(self):
-        self.assertEqual(1, len(self.domain_scoped.domains.list()))
+        domains = self.domain_scoped.domains.list()
+
+        self.assertEqual(1, len(domains))
+
+        domain = domains[0]
+        self.assertEqual('default', domain.id)
+        self.assertEqual('Default', domain.name)
+        self.assertEqual(True, domain.enabled)
+        self.assertEqual(
+            '%sv3/domains/default' % KEYSTONE_ENDPOINT,
+            domain.links['self'])
 
     def _identity_assertions(self, context):
         self.assertEqual('Confirmed', context['HTTP_X_IDENTITY_STATUS'])
