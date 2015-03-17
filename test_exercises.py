@@ -117,6 +117,25 @@ class TestCase(unittest.TestCase):
         self.assertEqual(domain.id, context['HTTP_X_DOMAIN_ID'])
         self.assertEqual(domain.name, context['HTTP_X_DOMAIN_NAME'])
 
+    def validate_token(self, token):
+        r = requests.get(
+            ECHO_ENDPOINT,
+            headers={'X-Auth-Token': token})
+        self.assertEqual(200, r.status_code)
+        return r
+
+    def assertUnscopedToken(self, token):
+        r = self.validate_token(token)
+        self.assertUnscopedContext(r.json())
+
+    def assertProjectScopedToken(self, token):
+        r = self.validate_token(token)
+        self.assertProjectScopedContext(self.project, self.domain, r.json())
+
+    def assertDomainScopedToken(self, token):
+        r = self.validate_token(token)
+        self.assertDomainScopedContext(self.domain, r.json())
+
     def test_unauthorized_request(self):
         r = requests.get(
             ECHO_ENDPOINT,
@@ -155,15 +174,7 @@ class TestCase(unittest.TestCase):
             username=self.user.name,
             password=self.password,
             auth_url=KEYSTONE_ENDPOINT + 'v3')
-        self.assertTrue(unscoped.auth_token)
-
-        r = requests.get(
-            ECHO_ENDPOINT,
-            headers={'X-Auth-Token': unscoped.auth_token})
-        self.assertEqual(200, r.status_code)
-
-        context = r.json()
-        self.assertUnscopedContext(context)
+        self.assertUnscopedToken(unscoped.auth_token)
 
     def test_project_scoped_request(self):
         project_scoped = client.Client(
@@ -171,15 +182,7 @@ class TestCase(unittest.TestCase):
             password=self.password,
             project_id=self.project.id,
             auth_url=KEYSTONE_ENDPOINT + 'v3')
-        self.assertTrue(project_scoped.auth_token)
-
-        r = requests.get(
-            ECHO_ENDPOINT,
-            headers={'X-Auth-Token': project_scoped.auth_token})
-        self.assertEqual(200, r.status_code)
-
-        context = r.json()
-        self.assertProjectScopedContext(self.project, self.domain, context)
+        self.assertProjectScopedToken(project_scoped.auth_token)
 
     def test_domain_scoped_request(self):
         domain_scoped = client.Client(
@@ -187,12 +190,4 @@ class TestCase(unittest.TestCase):
             password=self.password,
             domain_id=self.domain.id,
             auth_url=KEYSTONE_ENDPOINT + 'v3')
-        self.assertTrue(domain_scoped.auth_token)
-
-        r = requests.get(
-            ECHO_ENDPOINT,
-            headers={'X-Auth-Token': domain_scoped.auth_token})
-        self.assertEqual(200, r.status_code)
-
-        context = r.json()
-        self.assertDomainScopedContext(self.domain, context)
+        self.assertDomainScopedToken(domain_scoped.auth_token)
