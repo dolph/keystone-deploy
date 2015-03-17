@@ -75,9 +75,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual('default', domain.id)
         self.assertEqual('Default', domain.name)
         self.assertEqual(True, domain.enabled)
-        self.assertEqual(
-            '%sv3/domains/default' % KEYSTONE_ENDPOINT,
-            domain.links['self'])
+        self.assertTrue(domain.links['self'].endswith('/v3/domains/default'))
 
     def assertIdentityContext(self, context):
         self.assertEqual('Confirmed', context['HTTP_X_IDENTITY_STATUS'])
