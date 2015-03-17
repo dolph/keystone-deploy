@@ -79,7 +79,7 @@ class TestCase(unittest.TestCase):
             '%sv3/domains/default' % KEYSTONE_ENDPOINT,
             domain.links['self'])
 
-    def _identity_assertions(self, context):
+    def assertIdentityContext(self, context):
         self.assertEqual('Confirmed', context['HTTP_X_IDENTITY_STATUS'])
         self.assertEqual(self.user.id, context['HTTP_X_USER_ID'])
         self.assertEqual(self.user.name, context['HTTP_X_USER_NAME'])
@@ -134,7 +134,10 @@ class TestCase(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         context = r.json()
-        self._identity_assertions(context)
+        self.assertIdentityContext(context)
+        self.assertUnscopedContext(context)
+
+    def assertUnscopedContext(self, context):
         self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
         self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
         self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
@@ -156,12 +159,16 @@ class TestCase(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         context = r.json()
-        self._identity_assertions(context)
-        self.assertEqual(self.project.id, context['HTTP_X_PROJECT_ID'])
-        self.assertEqual(self.project.name, context['HTTP_X_PROJECT_NAME'])
-        self.assertEqual(self.domain.id, context['HTTP_X_PROJECT_DOMAIN_ID'])
+        self.assertIdentityContext(context)
+        self.assertProjectScopedContext(self.project, self.domain, context)
+
+    def assertProjectScopedContext(self, project, project_domain, context):
+        self.assertEqual(project.id, context['HTTP_X_PROJECT_ID'])
+        self.assertEqual(project.name, context['HTTP_X_PROJECT_NAME'])
         self.assertEqual(
-            self.domain.name, context['HTTP_X_PROJECT_DOMAIN_NAME'])
+            project_domain.id, context['HTTP_X_PROJECT_DOMAIN_ID'])
+        self.assertEqual(
+            project_domain.name, context['HTTP_X_PROJECT_DOMAIN_NAME'])
         self.assertEqual(None, context['HTTP_X_DOMAIN_ID'])
         self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
 
@@ -179,10 +186,13 @@ class TestCase(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         context = r.json()
-        self._identity_assertions(context)
+        self.assertIdentityContext(context)
+        self.assertDomainScopedContext(self.domain, context)
+
+    def assertDomainScopedContext(self, domain, context):
         self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
         self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
         self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
         self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_NAME'])
-        self.assertEqual(self.domain.id, context['HTTP_X_DOMAIN_ID'])
-        self.assertEqual(self.domain.name, context['HTTP_X_DOMAIN_NAME'])
+        self.assertEqual(domain.id, context['HTTP_X_DOMAIN_ID'])
+        self.assertEqual(domain.name, context['HTTP_X_DOMAIN_NAME'])
