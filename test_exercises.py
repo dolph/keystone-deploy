@@ -89,6 +89,7 @@ class TestCase(unittest.TestCase):
         self.assertNotIn('HTTP_X_SERVICE_IDENTITY_STATUS', context)
 
     def assertUnscopedContext(self, context):
+        self.assertIdentityContext(context)
         self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
         self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
         self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
@@ -97,6 +98,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
 
     def assertProjectScopedContext(self, project, project_domain, context):
+        self.assertIdentityContext(context)
         self.assertEqual(project.id, context['HTTP_X_PROJECT_ID'])
         self.assertEqual(project.name, context['HTTP_X_PROJECT_NAME'])
         self.assertEqual(
@@ -107,6 +109,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
 
     def assertDomainScopedContext(self, domain, context):
+        self.assertIdentityContext(context)
         self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
         self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
         self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
@@ -160,7 +163,6 @@ class TestCase(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         context = r.json()
-        self.assertIdentityContext(context)
         self.assertUnscopedContext(context)
 
     def test_project_scoped_request(self):
@@ -177,7 +179,6 @@ class TestCase(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         context = r.json()
-        self.assertIdentityContext(context)
         self.assertProjectScopedContext(self.project, self.domain, context)
 
     def test_domain_scoped_request(self):
@@ -194,5 +195,4 @@ class TestCase(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         context = r.json()
-        self.assertIdentityContext(context)
         self.assertDomainScopedContext(self.domain, context)
