@@ -88,6 +88,32 @@ class TestCase(unittest.TestCase):
 
         self.assertNotIn('HTTP_X_SERVICE_IDENTITY_STATUS', context)
 
+    def assertUnscopedContext(self, context):
+        self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_NAME'])
+        self.assertEqual(None, context['HTTP_X_DOMAIN_ID'])
+        self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
+
+    def assertProjectScopedContext(self, project, project_domain, context):
+        self.assertEqual(project.id, context['HTTP_X_PROJECT_ID'])
+        self.assertEqual(project.name, context['HTTP_X_PROJECT_NAME'])
+        self.assertEqual(
+            project_domain.id, context['HTTP_X_PROJECT_DOMAIN_ID'])
+        self.assertEqual(
+            project_domain.name, context['HTTP_X_PROJECT_DOMAIN_NAME'])
+        self.assertEqual(None, context['HTTP_X_DOMAIN_ID'])
+        self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
+
+    def assertDomainScopedContext(self, domain, context):
+        self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
+        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_NAME'])
+        self.assertEqual(domain.id, context['HTTP_X_DOMAIN_ID'])
+        self.assertEqual(domain.name, context['HTTP_X_DOMAIN_NAME'])
+
     def test_unauthorized_request(self):
         r = requests.get(
             ECHO_ENDPOINT,
@@ -137,14 +163,6 @@ class TestCase(unittest.TestCase):
         self.assertIdentityContext(context)
         self.assertUnscopedContext(context)
 
-    def assertUnscopedContext(self, context):
-        self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
-        self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
-        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
-        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_NAME'])
-        self.assertEqual(None, context['HTTP_X_DOMAIN_ID'])
-        self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
-
     def test_project_scoped_request(self):
         project_scoped = client.Client(
             user_id=self.user.id,
@@ -162,16 +180,6 @@ class TestCase(unittest.TestCase):
         self.assertIdentityContext(context)
         self.assertProjectScopedContext(self.project, self.domain, context)
 
-    def assertProjectScopedContext(self, project, project_domain, context):
-        self.assertEqual(project.id, context['HTTP_X_PROJECT_ID'])
-        self.assertEqual(project.name, context['HTTP_X_PROJECT_NAME'])
-        self.assertEqual(
-            project_domain.id, context['HTTP_X_PROJECT_DOMAIN_ID'])
-        self.assertEqual(
-            project_domain.name, context['HTTP_X_PROJECT_DOMAIN_NAME'])
-        self.assertEqual(None, context['HTTP_X_DOMAIN_ID'])
-        self.assertEqual(None, context['HTTP_X_DOMAIN_NAME'])
-
     def test_domain_scoped_request(self):
         domain_scoped = client.Client(
             user_id=self.user.id,
@@ -188,11 +196,3 @@ class TestCase(unittest.TestCase):
         context = r.json()
         self.assertIdentityContext(context)
         self.assertDomainScopedContext(self.domain, context)
-
-    def assertDomainScopedContext(self, domain, context):
-        self.assertEqual(None, context['HTTP_X_PROJECT_ID'])
-        self.assertEqual(None, context['HTTP_X_PROJECT_NAME'])
-        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_ID'])
-        self.assertEqual(None, context['HTTP_X_PROJECT_DOMAIN_NAME'])
-        self.assertEqual(domain.id, context['HTTP_X_DOMAIN_ID'])
-        self.assertEqual(domain.name, context['HTTP_X_DOMAIN_NAME'])
