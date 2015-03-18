@@ -138,11 +138,11 @@
     state=latest
 
 - name: install keystone client
-  shell: cd /opt/keystoneclient && python setup.py develop
+  shell: cd /opt/keystoneclient && python setup.py install
   notify: restart apache2
 
 - name: install keystone middleware
-  shell: cd /opt/keystonemiddleware && python setup.py develop
+  shell: cd /opt/keystonemiddleware && python setup.py install
   notify: restart apache2
 
 - name: install keystone
