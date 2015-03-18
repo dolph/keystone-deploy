@@ -22,6 +22,22 @@
     version={{ keystone_version | default('master') }}
   notify: restart apache2
 
+- name: checkout keystone middleware
+  git:
+    repo=https://github.com/openstack/keystonemiddleware.git
+    dest=/opt/keystonemiddleware
+    force=yes
+    version={{ keystonemiddleware_version | default('master') }}
+  notify: restart apache2
+
+- name: checkout keystone client
+  git:
+    repo=https://github.com/openstack/python-keystoneclient.git
+    dest=/opt/keystoneclient
+    force=yes
+    version={{ keystoneclient_version | default('master') }}
+  notify: restart apache2
+
 - name: remove the default virtual host
   file:
     path=/etc/apache2/sites-enabled/000-default
@@ -121,6 +137,14 @@
     name=six
     state=latest
 
+- name: install keystone client
+  shell: cd /opt/keystoneclient && python setup.py develop
+  notify: restart apache2
+
+- name: install keystone middleware
+  shell: cd /opt/keystonemiddleware && python setup.py develop
+  notify: restart apache2
+
 - name: install keystone
   shell: cd /opt/keystone && python setup.py install
   notify: restart apache2
@@ -131,7 +155,6 @@
     state=latest
   with_items:
   - python-memcached
-  - keystonemiddleware
   - pycrypto
   notify: restart apache2
 
