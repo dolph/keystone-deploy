@@ -12,7 +12,7 @@
     - python-dev
     - python-pip
     - libffi-dev
-  notify: restart apache2
+  notify: restart services
 
 - name: checkout source code
   git:
@@ -24,13 +24,13 @@
     - { repo: 'keystone', version: "{{ keystone_version | default('master') }}"  }
     - { repo: 'keystonemiddleware', version: "{{ keystonemiddleware_version | default('master') }}" }
     - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('master') }}" }
-  notify: restart apache2
+  notify: restart services
 
 - name: remove the default virtual host
   file:
     path=/etc/apache2/sites-enabled/000-default
     state=absent
-  notify: restart apache2
+  notify: restart services
 
 - name: deploy a virtual hosts
   template:
@@ -39,7 +39,7 @@
   with_items:
     - keystone
     - echo
-  notify: restart apache2
+  notify: restart services
 
 - name: establish a configuration directory for keystone
   file:
@@ -48,7 +48,7 @@
     owner=www-data
     group=www-data
     mode=0755
-  notify: restart apache2
+  notify: restart services
 
 - name: create dirs for wsgi scripts
   file:
@@ -60,7 +60,7 @@
   with_items:
     - keystone
     - echo
-  notify: restart apache2
+  notify: restart services
 
 - name: deploy keystone wsgi scripts
   template:
@@ -69,7 +69,7 @@
     owner=www-data
     group=www-data
     mode=0400
-  notify: restart apache2
+  notify: restart services
   with_items:
     - main
     - admin
@@ -81,7 +81,7 @@
     owner=www-data
     group=www-data
     mode=0400
-  notify: restart apache2
+  notify: restart services
 
 - name: deploy keystone configuration files
   template:
@@ -94,7 +94,7 @@
     - keystone.conf
     - paste.ini
     - policy.json
-  notify: restart apache2
+  notify: restart services
 
 # this is a workaround for installing on Debian Wheezy
 - name: install python-six
@@ -108,7 +108,7 @@
   - keystone
   - keystonemiddleware
   - python-keystoneclient
-  notify: restart apache2
+  notify: restart services
 
 - name: install extra python requirements
   pip:
@@ -117,7 +117,7 @@
   with_items:
   - python-memcached
   - pycrypto
-  notify: restart apache2
+  notify: restart services
 
 - name: run database migrations
   shell: keystone-manage db_sync
