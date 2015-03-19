@@ -1,6 +1,6 @@
 """Rerun the latest builds on Travis CI.
 
-This is largely derived from:
+This is originally derived from:
 
     https://github.com/hansjorg/travis-python-client/
 
