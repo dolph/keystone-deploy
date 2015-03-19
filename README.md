@@ -1,39 +1,36 @@
-# Deploy Keystone from source
+# Deploy keystone from source
 
 This illustrates a deployment of [OpenStack
-Keystone](http://keystone.openstack.org/) from
+keystone](http://keystone.openstack.org/) from
 [source](https://github.com/openstack/keystone), primarily geared towards
-testing recommended production configurations.
+documenting and testing various configurations.
 
 ## Usage
 
-### Using Vagrant
+This repository is designed to deploy keystone to an arbitrary host using
+ansible. You'll at least need `sudo` access on that host, if not `root`. This
+repository is tested with Travis CI, so Ubuntu 12.04 is recommended.
 
-To run against a [Vagrant](http://www.vagrantup.com/) box, just run:
+Start by installing the project's dependencies:
 
-    vagrant up
+    pip install -r requirements.txt
 
-When it's ready, you'll be able to use the vagrant box as an identity endpoint:
-
-    http://192.168.111.222:35357/
-
-Behind the scenes, Vagrant is just setting up a box to deploy to using Ansible.
-
-### Using Ansible directly
-
-Alternatively, copy the sample Ansible inventory file to create a custom
-inventory, or with custom variables:
+Copy the sample Ansible inventory file to create a custom inventory, where you
+can specify your host and any custom variables:
 
     cp sample_inventory inventory
 
-And then you can deploy against an arbitrary inventory:
+Next, install ansible dependencies:
 
-    ansible-playbook -i inventory --sudo deploy.yaml
+    ansible-galaxy install --roles-path=playbooks/roles/ --role-file=ansible-requirements.txt
 
-Once the machine is running, you can also re-run individual playbooks against
-it, for example:
+And then you can deploy keystone:
 
-    ansible-playbook -i inventory --sudo playbooks/sql.yaml
+    ansible-playbook -i inventory deploy.yaml
+
+Note that you might need to specify how ansible should authenticate with the
+host, and how to obtain root permissions. See `ansible-playbook --help` for
+the available options.
 
 ## Testing
 
@@ -50,10 +47,24 @@ rebased onto the master branch.
 | pkiz-tokens   | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=pkiz-tokens)](https://travis-ci.org/dolph/keystone-deploy)   |
 | v3-only       | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=v3-only)](https://travis-ci.org/dolph/keystone-deploy)       |
 
-To exercise a Vagrant deployment as created above, run:
-
-    python -m unittest discover
-
-To exercise a deployment on an arbitrary host, run:
+To exercise a deployment, run:
 
     HOST=keystone.example.com python -m unittest discover
+
+## Documentation
+
+The primary goal of this repository is to provide working, tested configuration
+documentation, which happens to be in the form of ansible plays.
+
+To see documentation on how to switch from UUID-tokens to fernet-tokens, for
+example, use `git diff`:
+
+    git diff master fernet-tokens
+
+To switch from PKI tokens to PKIZ tokens:
+
+    git diff pki-tokens pkiz-tokens
+
+To disable the Identity API v2 in favor of running v3 only:
+
+    git diff master v3-only
