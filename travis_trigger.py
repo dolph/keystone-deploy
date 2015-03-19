@@ -55,6 +55,7 @@ def request(method, path, headers=None, data=None):
 
     return r.json()
 
+
 def GET(path):
     """Send a GET request to the Travis CI API."""
     return request('GET', path)
@@ -84,7 +85,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'github_token', help='The Github token used to authenticate with Travis CI.')
+        'github_token',
+        help='The Github token used to authenticate with Travis CI.')
     args = parser.parse_args()
 
     travis_token = get_travis_token(args.github_token)
