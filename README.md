@@ -42,6 +42,7 @@ rebased onto the master branch.
 | Branch        | Status                                                                                                                               |
 |---------------|--------------------------------------------------------------------------------------------------------------------------------------|
 | master        | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=master)](https://travis-ci.org/dolph/keystone-deploy)        |
+| eventlet      | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=eventlet)](https://travis-ci.org/dolph/keystone-deploy)      |
 | fernet-tokens | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=fernet-tokens)](https://travis-ci.org/dolph/keystone-deploy) |
 | pki-tokens    | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=pki-tokens)](https://travis-ci.org/dolph/keystone-deploy)    |
 | pkiz-tokens   | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=pkiz-tokens)](https://travis-ci.org/dolph/keystone-deploy)   |

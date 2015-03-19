@@ -76,6 +76,7 @@ if __name__ == "__main__":
     repo_name = 'keystone-deploy'
     branches = (
         'master',
+        'eventlet',
         'fernet-tokens',
         'pki-tokens',
         'pkiz-tokens',
