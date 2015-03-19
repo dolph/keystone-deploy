@@ -104,9 +104,9 @@
 - name: install python projects
   shell: cd /opt/{{ item }} && python setup.py install
   with_items:
-  - keystone
-  - keystonemiddleware
-  - python-keystoneclient
+    - keystone
+    - keystonemiddleware
+    - python-keystoneclient
   notify: restart services
 
 - name: install extra python requirements
@@ -114,8 +114,8 @@
     name={{ item }}
     state=latest
   with_items:
-  - python-memcached
-  - pycrypto
+    - python-memcached
+    - pycrypto
   notify: restart services
 
 - name: run database migrations
