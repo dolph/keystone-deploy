@@ -41,11 +41,23 @@ def get_travis_token(github_token):
     return r['access_token']
 
 
+def request(method, path, headers=None, data=None):
+    if headers is None:
+        headers = {}
+
+    headers['Accept'] = 'application/vnd.travis-ci.2+json'
+
+    r = requests.request(
+        method=method,
+        url=TRAVIS_ENDPOINT + path,
+        headers=headers,
+        data=json.dumps(data) if data else None)
+
+    return r.json()
+
 def GET(path):
     """Send a GET request to the Travis CI API."""
-    r = requests.get(
-        TRAVIS_ENDPOINT + path)
-    return r.json()
+    return request('GET', path)
 
 
 def POST(path, token=None, data=None):
@@ -56,11 +68,7 @@ def POST(path, token=None, data=None):
     if token:
         headers['Authorization'] = 'token ' + token
 
-    r = requests.post(
-        TRAVIS_ENDPOINT + path,
-        headers=headers,
-        data=json.dumps(data) if data else None)
-    return r.json()
+    return request('POST', path, headers, data)
 
 
 if __name__ == "__main__":
