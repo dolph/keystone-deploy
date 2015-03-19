@@ -1,4 +1,7 @@
 - name: restart services
-  service:
-    name=apache2
+  supervisorctl:
+    name={{ item }}
     state=restarted
+  with_items:
+  - keystone
+  - echo

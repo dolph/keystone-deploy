@@ -6,11 +6,10 @@
   apt:
     pkg={{ item }}
   with_items:
-    - apache2
     - git
-    - libapache2-mod-wsgi
     - libffi-dev
     - python-dev
+    - supervisor
   notify: restart services
 
 - name: checkout source code
@@ -25,16 +24,10 @@
     - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('master') }}" }
   notify: restart services
 
-- name: remove the default virtual host
-  file:
-    path=/etc/apache2/sites-enabled/000-default
-    state=absent
-  notify: restart services
-
-- name: deploy a virtual hosts
-  template:
-    src={{ item }}.vhost
-    dest=/etc/apache2/sites-enabled/{{ item }}
+- name: create application users
+  user:
+    name={{ item }}
+    createhome=yes
   with_items:
     - echo
     - keystone
@@ -44,8 +37,8 @@
   file:
     path=/etc/keystone
     state=directory
-    owner=www-data
-    group=www-data
+    owner=keystone
+    group=keystone
     mode=0755
   notify: restart services
 
@@ -53,32 +46,20 @@
   file:
     path=/var/{{ item }}
     state=directory
-    owner=www-data
-    group=www-data
+    owner={{ item }}
+    group={{ item }}
     mode=0755
   with_items:
     - echo
     - keystone
   notify: restart services
 
-- name: deploy keystone wsgi scripts
-  template:
-    src=keystone.wsgi
-    dest=/var/keystone/{{ item }}
-    owner=www-data
-    group=www-data
-    mode=0400
-  notify: restart services
-  with_items:
-    - admin
-    - main
-
 - name: deploy an echo wsgi script
   template:
     src=echo.py
     dest=/var/echo/echo.py
-    owner=www-data
-    group=www-data
+    owner=echo
+    group=echo
     mode=0400
   notify: restart services
 
@@ -86,8 +67,8 @@
   template:
     src={{ item }}
     dest=/etc/keystone/{{ item }}
-    owner=www-data
-    group=www-data
+    owner=keystone
+    group=keystone
     mode=0400
   with_items:
     - keystone.conf
@@ -115,3 +96,14 @@
 
 - name: run database migrations
   shell: keystone-manage db_sync
+
+- name: deploy supervisor configs
+  template:
+    src=supervisor.{{ item }}.conf
+    dest=/etc/supervisor/conf.d/{{ item }}.conf
+  with_items:
+    - keystone
+    - echo
+
+- name: ensure supervised processes are present
+  shell: /usr/bin/supervisorctl reread && /usr/bin/supervisorctl update

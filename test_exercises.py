@@ -8,7 +8,7 @@ import requests
 
 
 HOST = os.environ.get('HOST', '192.168.111.222')
-ECHO_ENDPOINT = os.environ.get('ECHO_ENDPOINT', 'http://%s/' % HOST)
+ECHO_ENDPOINT = os.environ.get('ECHO_ENDPOINT', 'http://%s:8080/' % HOST)
 KEYSTONE_ENDPOINT = os.environ.get(
     'KEYSTONE_ENDPOINT', 'http://%s:35357/' % HOST)
 

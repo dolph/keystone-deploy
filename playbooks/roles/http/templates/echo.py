@@ -7,6 +7,9 @@ respond with all the environment variables presented to it by ``auth_token``.
 import json
 import logging
 
+import eventlet
+from eventlet import wsgi
+
 from keystonemiddleware import auth_token
 
 
@@ -39,3 +42,7 @@ def echo_app(environ, start_response):
 
 
 application = auth_token.AuthProtocol(echo_app, AUTH_TOKEN_CONF)
+
+
+if __name__ == '__main__':
+    wsgi.server(eventlet.listen(('', 8080)), application)
