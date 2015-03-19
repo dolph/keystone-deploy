@@ -14,28 +14,16 @@
     - libffi-dev
   notify: restart apache2
 
-- name: checkout keystone
+- name: checkout source code
   git:
-    repo=https://github.com/openstack/keystone.git
-    dest=/opt/keystone
+    repo=https://github.com/openstack/{{ item.repo }}.git
+    dest=/opt/{{ item.repo }}
     force=yes
-    version={{ keystone_version | default('master') }}
-  notify: restart apache2
-
-- name: checkout keystone middleware
-  git:
-    repo=https://github.com/openstack/keystonemiddleware.git
-    dest=/opt/keystonemiddleware
-    force=yes
-    version={{ keystonemiddleware_version | default('master') }}
-  notify: restart apache2
-
-- name: checkout keystone client
-  git:
-    repo=https://github.com/openstack/python-keystoneclient.git
-    dest=/opt/keystoneclient
-    force=yes
-    version={{ keystoneclient_version | default('master') }}
+    version={{ item.version }}
+  with_items:
+    - { repo: 'keystone', version: "{{ keystone_version | default('master') }}"  }
+    - { repo: 'keystonemiddleware', version: "{{ keystonemiddleware_version | default('master') }}" }
+    - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('master') }}" }
   notify: restart apache2
 
 - name: remove the default virtual host
@@ -44,16 +32,13 @@
     state=absent
   notify: restart apache2
 
-- name: deploy a keystone virtual host
+- name: deploy a virtual hosts
   template:
-    src=keystone.vhost
-    dest=/etc/apache2/sites-enabled/keystone
-  notify: restart apache2
-
-- name: deploy an echo virtual host
-  template:
-    src=echo.vhost
-    dest=/etc/apache2/sites-enabled/echo
+    src={{ item }}.vhost
+    dest=/etc/apache2/sites-enabled/{{ item }}
+  with_items:
+    - keystone
+    - echo
   notify: restart apache2
 
 - name: establish a configuration directory for keystone
@@ -65,22 +50,16 @@
     mode=0755
   notify: restart apache2
 
-- name: create a dir for keystone wsgi scripts
+- name: create dirs for wsgi scripts
   file:
-    path=/var/keystone
+    path=/var/{{ item }}
     state=directory
     owner=www-data
     group=www-data
     mode=0755
-  notify: restart apache2
-
-- name: create a dir for echo wsgi scripts
-  file:
-    path=/var/echo
-    state=directory
-    owner=www-data
-    group=www-data
-    mode=0755
+  with_items:
+    - keystone
+    - echo
   notify: restart apache2
 
 - name: deploy keystone wsgi scripts
@@ -104,31 +83,17 @@
     mode=0400
   notify: restart apache2
 
-- name: deploy keystone.conf
+- name: deploy keystone configuration files
   template:
-    src=keystone.conf
-    dest=/etc/keystone/keystone.conf
+    src={{ item }}
+    dest=/etc/keystone/{{ item }}
     owner=www-data
     group=www-data
     mode=0400
-  notify: restart apache2
-
-- name: deploy pipeline configuration
-  template:
-    src=paste.ini
-    dest=/etc/keystone/paste.ini
-    owner=www-data
-    group=www-data
-    mode=0400
-  notify: restart apache2
-
-- name: deploy policy.json
-  template:
-    src=policy.json
-    dest=/etc/keystone/policy.json
-    owner=www-data
-    group=www-data
-    mode=0400
+  with_items:
+    - keystone.conf
+    - paste.ini
+    - policy.json
   notify: restart apache2
 
 # this is a workaround for installing on Debian Wheezy
@@ -137,16 +102,12 @@
     name=six
     state=latest
 
-- name: install keystone client
-  shell: cd /opt/keystoneclient && python setup.py install
-  notify: restart apache2
-
-- name: install keystone middleware
-  shell: cd /opt/keystonemiddleware && python setup.py install
-  notify: restart apache2
-
-- name: install keystone
-  shell: cd /opt/keystone && python setup.py install
+- name: install python projects
+  shell: cd /opt/{{ item }} && python setup.py install
+  with_items:
+  - keystone
+  - keystonemiddleware
+  - python-keystoneclient
   notify: restart apache2
 
 - name: install extra python requirements
