@@ -6,11 +6,11 @@
   apt:
     pkg={{ item }}
   with_items:
-    - git
     - apache2
+    - git
     - libapache2-mod-wsgi
-    - python-dev
     - libffi-dev
+    - python-dev
   notify: restart services
 
 - name: checkout source code
@@ -36,8 +36,8 @@
     src={{ item }}.vhost
     dest=/etc/apache2/sites-enabled/{{ item }}
   with_items:
-    - keystone
     - echo
+    - keystone
   notify: restart services
 
 - name: establish a configuration directory for keystone
@@ -57,8 +57,8 @@
     group=www-data
     mode=0755
   with_items:
-    - keystone
     - echo
+    - keystone
   notify: restart services
 
 - name: deploy keystone wsgi scripts
@@ -70,8 +70,8 @@
     mode=0400
   notify: restart services
   with_items:
-    - main
     - admin
+    - main
 
 - name: deploy an echo wsgi script
   template:
@@ -100,8 +100,8 @@
     name={{ item }}
     state=latest
   with_items:
-    - python-memcached
     - pycrypto
+    - python-memcached
     - six  # workaround for debian wheezy?
   notify: restart services
 
