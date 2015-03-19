@@ -12,19 +12,19 @@ For Travis CI's API docs see:
 
 import argparse
 import json
-import urllib2
+import requests
 
 
-TRAVIS_BASE = 'https://api.travis-ci.org'
+TRAVIS_ENDPOINT = 'https://api.travis-ci.org'
 
 
 def get_last_build_on_branch(owner_name, repo_name, branch):
-    return call(
+    return GET(
         '/repos/{}/{}/branches/{}'.format(owner_name, repo_name, branch))
 
 
 def restart_build(travis_token, build_id):
-    return call('/requests', travis_token, {'build_id': build_id})
+    return POST('/requests', travis_token, data={'build_id': build_id})
 
 
 def get_travis_token(github_token):
@@ -35,58 +35,32 @@ def get_travis_token(github_token):
 
     """
 
-    token = None
-    response = call(
-        '/auth/github', data={'github_token': github_token})
-
-    if 'access_token' in response:
-        token = response['access_token']
-
-    return token
+    r = POST(
+        '/auth/github',
+        data={'github_token': github_token})
+    return r['access_token']
 
 
-def call(url, token=None, data=None):
-    json_data = None
-    if data:
-        json_data = json.dumps(data)
+def GET(path):
+    """Send a GET request to the Travis CI API."""
+    r = requests.get(
+        TRAVIS_ENDPOINT + path)
+    return r.json()
 
-    request = urllib2.Request(TRAVIS_BASE + url, json_data)
+
+def POST(path, token=None, data=None):
+    """Send a POST request to the Travis CI API."""
+    headers = {
+        'Content-Type': 'application/json; charset=UTF-8'}
 
     if token:
-        request.add_header('Authorization', 'token ' + token)
-    request.add_header('Content-Type', 'application/json; charset=UTF-8')
+        headers['Authorization'] = 'token ' + token
 
-    try:
-        response = urllib2.urlopen(request)
-    except urllib2.HTTPError as e:
-        msg = e.read()
-
-        print('Error response from Travis: ' + str(e.code))
-        print(msg)
-
-        if e.code == 403:
-            raise AuthException(msg)
-        return None
-
-    response_data = response.read()
-
-    result = None
-    if response_data:
-        encoding = response.headers.getparam('charset')
-
-        if not encoding:
-            encoding = 'utf-8'
-
-        try:
-            result = json.loads(response_data.decode(encoding))
-        except ValueError:
-            print('Unable to deserialize json. Response: "{}"'.
-                  format(response_data))
-    return result
-
-
-class AuthException(Exception):
-    pass
+    r = requests.post(
+        TRAVIS_ENDPOINT + path,
+        headers=headers,
+        data=json.dumps(data) if data else None)
+    return r.json()
 
 
 if __name__ == "__main__":
@@ -97,10 +71,11 @@ if __name__ == "__main__":
         'fernet-tokens',
         'pki-tokens',
         'pkiz-tokens',
-        'v3-only')
+        'v3-only',)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('github_token')
+    parser.add_argument(
+        'github_token', help='The Github token used to authenticate with Travis CI.')
     args = parser.parse_args()
 
     travis_token = get_travis_token(args.github_token)
@@ -108,5 +83,6 @@ if __name__ == "__main__":
     for branch in branches:
         last_build = get_last_build_on_branch(owner_name, repo_name, branch)
         result = restart_build(travis_token, last_build['branch']['id'])
-        print('Restarting build for branch: %s' % branch)
-        print(json.dumps(result, sort_keys=True, indent=2))
+        for flash in result['flash']:
+            for key, value in flash.iteritems():
+                print('%s (%s): %s' % (branch, key.upper(), value))
