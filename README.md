@@ -39,14 +39,14 @@ branch demonstrates and tests a deployment variation. The `master` branch
 represents a vanilla deployment. All feature branches should be regularly
 rebased onto the master branch.
 
-| Branch        | Status                                                                                                                               |
-|---------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| master        | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=master)](https://travis-ci.org/dolph/keystone-deploy)        |
-| eventlet      | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=eventlet)](https://travis-ci.org/dolph/keystone-deploy)      |
-| fernet-tokens | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=fernet-tokens)](https://travis-ci.org/dolph/keystone-deploy) |
-| pki-tokens    | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=pki-tokens)](https://travis-ci.org/dolph/keystone-deploy)    |
-| pkiz-tokens   | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=pkiz-tokens)](https://travis-ci.org/dolph/keystone-deploy)   |
-| v3-only       | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=v3-only)](https://travis-ci.org/dolph/keystone-deploy)       |
+| Branch        | Status                                                                                                                                        | Description                                              |
+|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| master        | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=master)](https://travis-ci.org/dolph/keystone-deploy/branches)        | Uses Apache httpd, with a MySQL backend and UUID tokens. |
+| eventlet      | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=eventlet)](https://travis-ci.org/dolph/keystone-deploy/branches)      | Uses eventlet instead of Apache httpd.                   |
+| fernet-tokens | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=fernet-tokens)](https://travis-ci.org/dolph/keystone-deploy/branches) | Uses Fernet tokens instead of UUID tokens.               |
+| pki-tokens    | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=pki-tokens)](https://travis-ci.org/dolph/keystone-deploy/branches)    | Uses PKI tokens instead of UUID tokens.                  |
+| pkiz-tokens   | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=pkiz-tokens)](https://travis-ci.org/dolph/keystone-deploy/branches)   | Uses PKIZ tokens instead of PKI tokens.                  |
+| v3-only       | [![Build Status](https://travis-ci.org/dolph/keystone-deploy.svg?branch=v3-only)](https://travis-ci.org/dolph/keystone-deploy/branches)       | Does not deploy Identity API v2 at all.                  |
 
 To exercise a deployment, run:
 
