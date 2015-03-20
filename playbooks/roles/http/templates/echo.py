@@ -2,6 +2,7 @@
 
 When the ``auth_token`` module authenticates a request, the echo service will
 respond with all the environment variables presented to it by ``auth_token``.
+
 """
 import json
 import logging
