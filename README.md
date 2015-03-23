@@ -32,6 +32,19 @@ Note that you might need to specify how ansible should authenticate with the
 host, and how to obtain root permissions. See `ansible-playbook --help` for
 the available options.
 
+## How it works
+
+The ansible playbooks deploy both `keystone` and a tiny service protected by
+`keystonemiddleware.auth_token` called `echo`. The test suite exercises the
+deployment by retrieving tokens from keystone using `keystoneclient`, and
+making authenticated API requests to `echo`. `auth_token` intercepts those
+requests and validates the authentication and authorization context asserted by
+keystone. To live up to it's name, `echo` then echoes the user's auth context
+back to the test suite in the HTTP response, where it is validated against the
+expected auth context.
+
+![Sequence diagram](http://www.websequencediagrams.com/cgi-bin/cdraw?lz=Q2xpZW50LT4ra2V5c3RvbmU6IEF1dGhlbnRpY2F0ZQoADwgtLT4tACYGOiBUb2tlbgoAMQlhdXRoX3Rva2VuOiBBUEkgcmVxdWVzdCArIAAQBQoAFgoAWg1WYWxpZGF0ZQAfBwBdDABFDXV0aCBjb250ZXh0AD0OZWNobyBzZXJ2aWNlAGoQYQAqDAAdDACBPAwAgScGc3BvbnNlCg&s=napkin)
+
 ## Testing
 
 This repository is divided into several feature branches, wherein each feature
