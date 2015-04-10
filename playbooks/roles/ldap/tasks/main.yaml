@@ -1,0 +1,9 @@
+- name: update apt cache
+  apt:
+    update_cache=yes
+
+- name: install apt packages
+  apt:
+    pkg={{ item }}
+  with_items:
+    - slapd

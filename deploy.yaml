@@ -1,2 +1,3 @@
+- include: playbooks/ldap.yaml
 - include: playbooks/sql.yaml
 - include: playbooks/http.yaml
