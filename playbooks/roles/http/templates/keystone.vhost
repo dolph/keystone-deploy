@@ -11,12 +11,13 @@ Listen 35357
     CustomLog /var/log/apache2/keystone-main.access.log combined
 
     <Directory /var/keystone>
-    {% if apache24|success %}
-    Require all granted
-    {% else %}
-    Order allow,deny
-        Allow from all
-    {% endif %}</Directory>
+        {% if apache24|success %}
+            Require all granted
+        {% else %}
+            Order allow,deny
+            Allow from all
+        {% endif %}
+    </Directory>
 </VirtualHost>
 
 <VirtualHost *:35357>
@@ -29,10 +30,10 @@ Listen 35357
     CustomLog /var/log/apache2/keystone-admin.access.log combined
 
     <Directory /var/keystone>
-    {% if apache24|success %}
-    Require all granted
-    {% else %}
-    Order allow,deny
-        Allow from all
-    {% endif %}</Directory>
+        {% if apache24|success %}
+            Require all granted
+        {% else %}
+            Order allow,deny
+            Allow from all
+        {% endif %}</Directory>
 </VirtualHost>
