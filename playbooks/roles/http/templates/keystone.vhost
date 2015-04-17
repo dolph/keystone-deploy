@@ -35,5 +35,6 @@ Listen 35357
         {% else %}
             Order allow,deny
             Allow from all
-        {% endif %}</Directory>
+        {% endif %}
+    </Directory>
 </VirtualHost>
