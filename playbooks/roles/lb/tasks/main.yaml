@@ -1,0 +1,28 @@
+- name: update apt cache
+  apt:
+    update_cache=yes
+
+- name: add haproxy apt repository
+  apt_repository:
+    repo='ppa:vbernat/haproxy-1.5'
+    state=present
+
+- name: update apt cache
+  apt:
+    update_cache=yes
+
+- name: install haproxy
+  apt:
+    pkg=haproxy
+
+- name: deploy haproxy init
+  template:
+    src=haproxy.init
+    dest=/etc/default/haproxy
+  notify: restart haproxy
+
+- name: deploy haproxy configuration
+  template:
+    src=haproxy.cfg
+    dest=/etc/haproxy/haproxy.cfg
+  notify: restart haproxy
