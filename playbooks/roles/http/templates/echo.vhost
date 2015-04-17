@@ -8,7 +8,10 @@
     CustomLog /var/log/apache2/echo.access.log combined
 
     <Directory /var/echo>
-        Order allow,deny
+    {% if apache24|success %}
+    Require all granted
+    {% else %}
+    Order allow,deny
         Allow from all
-    </Directory>
+    {% endif %}</Directory>
 </VirtualHost>

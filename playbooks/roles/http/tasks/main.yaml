@@ -13,6 +13,10 @@
     - python-dev
   notify: restart services
 
+- shell: "apache2 -v | grep 'Apache/2.4'"
+  register: apache24
+  ignore_errors: True
+
 - name: checkout source code
   git:
     repo=https://github.com/openstack/{{ item.repo }}.git
@@ -34,7 +38,7 @@
 - name: deploy a virtual hosts
   template:
     src={{ item }}.vhost
-    dest=/etc/apache2/sites-enabled/{{ item }}
+    dest=/etc/apache2/sites-enabled/{{ item }}.conf
   with_items:
     - echo
     - keystone
