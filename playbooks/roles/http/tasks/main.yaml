@@ -19,7 +19,7 @@
 
 - name: checkout source code
   git:
-    repo=https://github.com/openstack/{{ item.repo }}.git
+    repo=https://review.openstack.org/openstack/{{ item.repo }}.git
     dest=/opt/{{ item.repo }}
     force=yes
     version={{ item.version }}
