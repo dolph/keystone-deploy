@@ -35,6 +35,13 @@
     state=absent
   notify: restart services
 
+- name: remove the default virtual host for Apache
+  file:
+    path=/etc/apache2/sites-enabled/000-default.conf
+    state=absent
+  when: apache24|success
+  notify: restart services
+
 - name: deploy a virtual hosts
   template:
     src={{ item }}.vhost
