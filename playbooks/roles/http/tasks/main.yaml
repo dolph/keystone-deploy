@@ -22,11 +22,11 @@
     repo=https://review.openstack.org/openstack/{{ item.repo }}.git
     dest=/opt/{{ item.repo }}
     force=yes
-    version={{ item.version }}
+    refspec={{ item.version }}
   with_items:
-    - { repo: 'keystone', version: "{{ keystone_version | default('master') }}"  }
-    - { repo: 'keystonemiddleware', version: "{{ keystonemiddleware_version | default('master') }}" }
-    - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('master') }}" }
+    - { repo: 'keystone', version: "{{ keystone_version | default('refs/heads/master') }}"  }
+    - { repo: 'keystonemiddleware', version: "{{ keystonemiddleware_version | default('refs/heads/master') }}" }
+    - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('refs/heads/master') }}" }
   notify: restart services
 
 - name: remove the default virtual host
