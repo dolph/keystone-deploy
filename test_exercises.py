@@ -1,7 +1,10 @@
+import argparse
 import os
+import random
 import unittest
 import uuid
 
+import dataset
 from keystoneclient.v2_0 import client as v2_client
 from keystoneclient.v3 import client as v3_client
 import requests
@@ -12,78 +15,88 @@ ECHO_ENDPOINT = os.environ.get('ECHO_ENDPOINT', 'http://%s/' % HOST)
 KEYSTONE_ENDPOINT = os.environ.get(
     'KEYSTONE_ENDPOINT', 'http://%s:35357/' % HOST)
 
+DATASET = dataset.connect('sqlite:///dataset.db')
+
 
 def unique():
     return uuid.uuid4().hex
 
 
+def bootstrap(args=None):
+    c = v3_client.Client(
+        token='ADMIN',
+        endpoint=KEYSTONE_ENDPOINT + 'v3')
+
+    domain = c.domains.get('default')
+
+    roles = c.roles.list(name='admin')
+    if roles:
+        role = roles[0]
+    else:
+        role = c.roles.create(name='admin')
+
+    groups = c.groups.list(domain=domain, name='admin')
+    if groups:
+        group = groups[0]
+    else:
+        group = c.groups.create(domain=domain, name='admin')
+
+    c.roles.grant(group=group, domain=domain, role=role)
+
+    projects = c.projects.list(domain=domain, name='admin')
+    if projects:
+        project = projects[0]
+    else:
+        project = c.projects.create(domain=domain, name='admin')
+
+    c.roles.grant(group=group, project=project, role=role)
+
+    password = 'password'
+    users = c.users.list(domain=domain, name='admin')
+    if users:
+        user = users[0]
+    else:
+        user = c.users.create(
+            domain=domain, name='admin', password=password)
+
+    c.users.add_to_group(user=user, group=group)
+
+    services = c.services.list(
+        name='Keystone', type='identity')
+    if services:
+        service = services[0]
+    else:
+        service = c.services.create(
+            name='Keystone', type='identity')
+
+    endpoints = c.endpoints.list()
+    if not [x for x in endpoints if x.interface == 'public']:
+        c.endpoints.create(
+            service=service,
+            interface='public',
+            url=KEYSTONE_ENDPOINT + 'v3')
+    if not [x for x in endpoints if x.interface == 'admin']:
+        c.endpoints.create(
+            service=service,
+            interface='admin',
+            url=KEYSTONE_ENDPOINT + 'v3')
+
+
+def authenticated_admin_client():
+    return v3_client.Client(
+        username='admin',
+        password='password',
+        project_name='admin',
+        auth_url=KEYSTONE_ENDPOINT + 'v3')
+
+
 class Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        c = v3_client.Client(
-            token='ADMIN',
-            endpoint=KEYSTONE_ENDPOINT + 'v3')
-
-        domain = c.domains.get('default')
-
-        roles = c.roles.list(name='admin')
-        if roles:
-            role = roles[0]
-        else:
-            role = c.roles.create(name='admin')
-
-        groups = c.groups.list(domain=domain, name='admin')
-        if groups:
-            group = groups[0]
-        else:
-            group = c.groups.create(domain=domain, name='admin')
-
-        c.roles.grant(group=group, domain=domain, role=role)
-
-        projects = c.projects.list(domain=domain, name='admin')
-        if projects:
-            project = projects[0]
-        else:
-            project = c.projects.create(domain=domain, name='admin')
-
-        c.roles.grant(group=group, project=project, role=role)
-
-        password = 'password'
-        users = c.users.list(domain=domain, name='admin')
-        if users:
-            user = users[0]
-        else:
-            user = c.users.create(
-                domain=domain, name='admin', password=password)
-
-        c.users.add_to_group(user=user, group=group)
-
-        services = c.services.list(
-            name='Keystone', type='identity')
-        if services:
-            service = services[0]
-        else:
-            service = c.services.create(
-                name='Keystone', type='identity')
-
-        endpoints = c.endpoints.list()
-        if not [x for x in endpoints if x.interface == 'public']:
-            c.endpoints.create(
-                service=service,
-                interface='public',
-                url=KEYSTONE_ENDPOINT + 'v3')
-        if not [x for x in endpoints if x.interface == 'admin']:
-            c.endpoints.create(
-                service=service,
-                interface='admin',
-                url=KEYSTONE_ENDPOINT + 'v3')
+        bootstrap()
 
     def setUp(self):
-        c = v3_client.Client(
-            username='admin',
-            password='password',
-            project_name='admin',
-            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        c = authenticated_admin_client()
 
         self.domain = c.domains.get('default')
 
@@ -284,3 +297,107 @@ class V3(Base, Common):
             domain_id=self.domain.id,
             auth_url=KEYSTONE_ENDPOINT + self.version)
         self.assertDomainScopedToken(domain_scoped.auth_token)
+
+
+def main(args):
+    pass
+
+
+def create_users(args):
+    c = authenticated_admin_client()
+
+    # create the member role if it doesn't exist
+    roles = c.roles.list(name='member')
+    if roles:
+        role = roles[0]
+    else:
+        role = c.roles.create(name='member')
+
+    # create the specified number of users
+    for x in xrange(args.n):
+        name = unique()
+
+        # create a project
+        project = c.projects.create(domain='default', name=name)
+
+        # create a user
+        password = unique()
+        user = c.users.create(
+            domain='default', name=name, password=password)
+
+        c.roles.grant(user=user, project=project, role=role)
+
+        DATASET['users'].insert(dict(name=name, password=password))
+
+
+def get_random_user():
+    for row in DATASET.query('SELECT * FROM users ORDER BY RANDOM() LIMIT 1;'):
+        return row
+
+
+def user_authenticate(args):
+    for x in xrange(args.n):
+        user = get_random_user()
+
+        project_scoped = v3_client.Client(
+            user_domain_id='default',
+            username=user['name'],
+            password=user['password'],
+            project_domain_id='default',
+            project_name=user['name'],
+            auth_url=KEYSTONE_ENDPOINT + 'v3')
+        r = requests.get(
+            ECHO_ENDPOINT,
+            headers={'X-Auth-Token': project_scoped.auth_token})
+        assert r.status_code == 200
+
+
+def exercise(args):
+    while True:
+        x = random.random()
+
+        if x < 0.01:
+            f = create_users
+            args = parser.parse_args(['create-users', '1'])
+        else:
+            f = user_authenticate
+            args = parser.parse_args(['authenticate', '1'])
+
+        try:
+            f(args)
+        except Exception as e:
+            print(e)
+        except KeyboardInterrupt:
+            return
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
+
+    bootstrap_parser = subparsers.add_parser(
+        'bootstrap',
+        help='Use the admin token to bootstrap an admin user and service '
+             'catalog.')
+    bootstrap_parser.set_defaults(func=bootstrap)
+
+    create_users_parser = subparsers.add_parser(
+        'create-users',
+        help='Create the specified number of users.')
+    create_users_parser.add_argument('n', type=int, help='Number of users.')
+    create_users_parser.set_defaults(func=create_users)
+
+    authenticate_parser = subparsers.add_parser(
+        'authenticate',
+        help='')
+    authenticate_parser.add_argument(
+        'n', type=int, help='Number of authentications.')
+    authenticate_parser.set_defaults(func=user_authenticate)
+
+    exercise_parser = subparsers.add_parser(
+        'exercise',
+        help='Run exercises against a deployment endlessly.')
+    exercise_parser.set_defaults(func=exercise)
+
+    args = parser.parse_args()
+    args.func(args)
