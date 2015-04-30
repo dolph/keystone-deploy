@@ -5,13 +5,13 @@
 ServerLimit {{ virtual_hosts * process_count }}
 
 <IfModule mpm_event_module>
-  StartServers {{ virtual_hosts * process_count }}
-  MinSpareThreads {{ thread_count / 2 }}
-  MaxSpareThreads {{ thread_count }}
-  ThreadLimit {{ thread_count }}
-  ThreadsPerChild {{ thread_count }}
-  MaxRequestWorkers {{ virtual_hosts * process_count * thread_count }}
-  MaxConnectionsPerChild 0
+    StartServers {{ virtual_hosts * process_count }}
+    MinSpareThreads {{ thread_count / 2 }}
+    MaxSpareThreads {{ thread_count }}
+    ThreadLimit {{ thread_count }}
+    ThreadsPerChild {{ thread_count }}
+    MaxRequestWorkers {{ virtual_hosts * process_count * thread_count }}
+    MaxConnectionsPerChild 0
 </IfModule>
 
 Listen 5000
@@ -27,12 +27,18 @@ Listen 35357
     CustomLog /var/log/apache2/keystone-main.access.log combined
 
     <Directory /var/keystone>
+
         {% if apache24|success %}
+
             Require all granted
+
         {% else %}
+
             Order allow,deny
             Allow from all
+
         {% endif %}
+
     </Directory>
 </VirtualHost>
 
@@ -46,11 +52,17 @@ Listen 35357
     CustomLog /var/log/apache2/keystone-admin.access.log combined
 
     <Directory /var/keystone>
+
         {% if apache24|success %}
+
             Require all granted
+
         {% else %}
+
             Order allow,deny
             Allow from all
+
         {% endif %}
+
     </Directory>
 </VirtualHost>

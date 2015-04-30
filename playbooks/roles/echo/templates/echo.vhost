@@ -4,13 +4,13 @@
 ServerLimit {{ process_count }}
 
 <IfModule mpm_event_module>
-  StartServers {{ process_count }}
-  MinSpareThreads {{ thread_count / 2 }}
-  MaxSpareThreads {{ thread_count }}
-  ThreadLimit {{ thread_count }}
-  ThreadsPerChild {{ thread_count }}
-  MaxRequestWorkers {{ process_count * thread_count }}
-  MaxConnectionsPerChild 0
+    StartServers {{ process_count }}
+    MinSpareThreads {{ thread_count / 2 }}
+    MaxSpareThreads {{ thread_count }}
+    ThreadLimit {{ thread_count }}
+    ThreadsPerChild {{ thread_count }}
+    MaxRequestWorkers {{ process_count * thread_count }}
+    MaxConnectionsPerChild 0
 </IfModule>
 
 <VirtualHost *:80>
@@ -23,11 +23,17 @@ ServerLimit {{ process_count }}
     CustomLog /var/log/apache2/echo.access.log combined
 
     <Directory /var/echo>
+
         {% if apache24|success %}
+
             Require all granted
+
         {% else %}
+
             Order allow,deny
             Allow from all
+
         {% endif %}
+
     </Directory>
 </VirtualHost>
