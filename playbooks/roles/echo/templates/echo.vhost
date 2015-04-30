@@ -1,6 +1,21 @@
+{% set process_count = 16 * ansible_processor_vcpus %}
+{% set thread_count = 64 %}
+
+ServerLimit {{ process_count }}
+
+<IfModule mpm_event_module>
+  StartServers {{ process_count }}
+  MinSpareThreads {{ thread_count / 2 }}
+  MaxSpareThreads {{ thread_count }}
+  ThreadLimit {{ thread_count }}
+  ThreadsPerChild {{ thread_count }}
+  MaxRequestWorkers {{ process_count * thread_count }}
+  MaxConnectionsPerChild 0
+</IfModule>
+
 <VirtualHost *:80>
     WSGIScriptAlias / /var/echo/echo.py
-    WSGIDaemonProcess echo processes=3 threads=3 display-name=echo
+    WSGIDaemonProcess echo processes={{ process_count }} threads={{ thread_count }}  display-name=echo
     WSGIProcessGroup echo
 
     ErrorLog /var/log/apache2/echo.error.log
