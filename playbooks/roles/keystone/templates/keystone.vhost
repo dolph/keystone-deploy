@@ -2,7 +2,7 @@
 {% set thread_count = 1 %}
 {% set virtual_hosts = 2 %}
 
-ServerLimit {{ process_count }}
+ServerLimit {{ virtual_hosts * process_count }}
 
 <IfModule mpm_event_module>
   StartServers {{ virtual_hosts * process_count }}
