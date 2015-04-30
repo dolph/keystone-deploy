@@ -15,8 +15,8 @@ logging.basicConfig()
 
 AUTH_TOKEN_CONF = {
     'auth_plugin': 'password',
-    'auth_uri': 'http://{{ ansible_default_ipv4["address"] }}:35357/',
-    'auth_url': 'http://{{ ansible_default_ipv4["address"] }}:35357/',
+    'auth_uri': 'http://{{ keystone_host }}:35357/',
+    'auth_url': 'http://{{ keystone_host }}:35357/',
     'username': 'admin',
     'user_domain_id': 'default',
     'password': 'password',

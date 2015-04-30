@@ -1,0 +1,27 @@
+- name: update apt cache
+  apt:
+    update_cache=yes
+
+- name: install apt packages
+  apt:
+    pkg={{ item }}
+  with_items:
+    - apache2
+    - git
+    - libapache2-mod-wsgi
+    - python-dev
+  notify: restart services
+
+- name: detect apache version
+  shell: "apache2 -v | grep 'Apache/2.4'"
+  register: apache24
+  ignore_errors: True
+
+- name: remove the default virtual host
+  file:
+    path={{ item }}
+    state=absent
+  with_items:
+    - /etc/apache2/sites-enabled/000-default
+    - /etc/apache2/sites-enabled/000-default.conf
+  notify: restart services

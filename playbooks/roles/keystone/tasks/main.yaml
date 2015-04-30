@@ -1,14 +1,8 @@
-- name: update apt cache
-  apt:
-    update_cache=yes
-
 - name: install apt packages
   apt:
     pkg={{ item }}
   with_items:
-    - apache2
     - git
-    - libapache2-mod-wsgi
     - libffi-dev
     - python-dev
   notify: restart services
@@ -25,21 +19,7 @@
     refspec={{ item.version }}
   with_items:
     - { repo: 'keystone', version: "{{ keystone_version | default('refs/heads/master') }}"  }
-    - { repo: 'keystonemiddleware', version: "{{ keystonemiddleware_version | default('refs/heads/master') }}" }
     - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('refs/heads/master') }}" }
-  notify: restart services
-
-- name: remove the default virtual host
-  file:
-    path=/etc/apache2/sites-enabled/000-default
-    state=absent
-  notify: restart services
-
-- name: remove the default virtual host for Apache
-  file:
-    path=/etc/apache2/sites-enabled/000-default.conf
-    state=absent
-  when: apache24|success
   notify: restart services
 
 - name: deploy a virtual hosts
@@ -47,7 +27,6 @@
     src={{ item }}.vhost
     dest=/etc/apache2/sites-enabled/{{ item }}.conf
   with_items:
-    - echo
     - keystone
   notify: restart services
 
@@ -68,7 +47,6 @@
     group=www-data
     mode=0755
   with_items:
-    - echo
     - keystone
   notify: restart services
 
@@ -83,15 +61,6 @@
   with_items:
     - admin
     - main
-
-- name: deploy an echo wsgi script
-  template:
-    src=echo.py
-    dest=/var/echo/echo.py
-    owner=www-data
-    group=www-data
-    mode=0400
-  notify: restart services
 
 - name: deploy keystone configuration files
   template:
@@ -120,7 +89,6 @@
   shell: cd /opt/{{ item }} && python setup.py install
   with_items:
     - keystone
-    - keystonemiddleware
     - python-keystoneclient
   notify: restart services
 
