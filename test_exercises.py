@@ -8,6 +8,7 @@ import dataset
 from keystoneclient.v2_0 import client as v2_client
 from keystoneclient.v3 import client as v3_client
 import requests
+import threading
 
 
 HOST = os.environ.get('HOST', '192.168.111.222')
@@ -15,7 +16,7 @@ ECHO_ENDPOINT = os.environ.get('ECHO_ENDPOINT', 'http://%s/' % HOST)
 KEYSTONE_ENDPOINT = os.environ.get(
     'KEYSTONE_ENDPOINT', 'http://%s:35357/' % HOST)
 
-DATASET = dataset.connect('sqlite:///dataset.db')
+DATASET_LOCK = threading.Lock()
 
 
 def unique():
@@ -327,12 +328,16 @@ def create_users(args):
 
         c.roles.grant(user=user, project=project, role=role)
 
-        DATASET['users'].insert(dict(name=name, password=password))
+        with DATASET_LOCK:
+            db = dataset.connect('sqlite:///dataset.db')
+            db['users'].insert(dict(name=name, password=password))
 
 
 def get_random_user():
-    for row in DATASET.query('SELECT * FROM users ORDER BY RANDOM() LIMIT 1;'):
-        return row
+    with DATASET_LOCK:
+        db = dataset.connect('sqlite:///dataset.db')
+        for row in db.query('SELECT * FROM users ORDER BY RANDOM() LIMIT 1;'):
+            return row
 
 
 def user_authenticate(args):
@@ -353,6 +358,12 @@ def user_authenticate(args):
 
 
 def exercise(args):
+    for i in xrange(args.threads):
+        t = threading.Thread(target=exercise_loop)
+        t.start()
+
+
+def exercise_loop():
     while True:
         x = random.random()
 
@@ -397,6 +408,8 @@ if __name__ == '__main__':
     exercise_parser = subparsers.add_parser(
         'exercise',
         help='Run exercises against a deployment endlessly.')
+    exercise_parser.add_argument(
+        'threads', type=int, help='Number of concurrent threads.')
     exercise_parser.set_defaults(func=exercise)
 
     args = parser.parse_args()
