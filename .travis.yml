@@ -4,5 +4,5 @@ python:
 install:
   - pip install -r requirements.txt
   - ansible-galaxy install --roles-path=playbooks/roles/ --role-file=ansible-requirements.txt
-  - ansible-playbook --connection=local --inventory-file='localhost,' --sudo deploy.yaml
+  - ansible-playbook --connection=local --inventory-file=.travis-ansible-inventory --sudo deploy.yaml
 script: HOST='localhost' python -m unittest discover

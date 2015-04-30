@@ -1,0 +1,8 @@
+[keystone]
+localhost
+
+[echo]
+localhost
+
+[db]
+localhost
