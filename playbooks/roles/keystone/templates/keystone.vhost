@@ -6,7 +6,7 @@ ServerLimit {{ virtual_hosts * process_count }}
 
 <IfModule mpm_event_module>
     StartServers {{ virtual_hosts * process_count }}
-    MinSpareThreads {{ thread_count / 2 }}
+    MinSpareThreads {{ (thread_count / 2)|int }}
     MaxSpareThreads {{ thread_count }}
     ThreadLimit {{ thread_count }}
     ThreadsPerChild {{ thread_count }}
