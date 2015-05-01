@@ -16,6 +16,8 @@
   with_items:
     - echo
   notify: restart services
+  tags:
+    - config
 
 - name: create dirs for wsgi scripts
   file:
@@ -36,6 +38,8 @@
     group=www-data
     mode=0400
   notify: restart services
+  tags:
+    - config
 
 - name: install extra python requirements
   pip:

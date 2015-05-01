@@ -16,6 +16,8 @@
   shell: "apache2 -v | grep 'Apache/2.4'"
   register: apache24
   ignore_errors: True
+  tags:
+  - config
 
 - name: remove the default virtual host
   file:
@@ -25,3 +27,5 @@
     - /etc/apache2/sites-enabled/000-default
     - /etc/apache2/sites-enabled/000-default.conf
   notify: restart services
+  tags:
+  - config
