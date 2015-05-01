@@ -19,7 +19,7 @@ Listen 35357
 
 <VirtualHost *:5000>
     WSGIScriptAlias / /var/keystone/main
-    WSGIDaemonProcess keystone-main processes={{ process_count }} threads={{ thread_count }}  display-name=keystone-main
+    WSGIDaemonProcess keystone-main processes={{ process_count }} threads={{ thread_count }} display-name=keystone-main
     WSGIProcessGroup keystone-main
 
     ErrorLog /var/log/apache2/keystone-main.error.log
@@ -45,7 +45,7 @@ Listen 35357
 
 <VirtualHost *:35357>
     WSGIScriptAlias / /var/keystone/admin
-    WSGIDaemonProcess keystone-admin processes={{ process_count }} threads={{ thread_count }}  display-name=keystone-admin
+    WSGIDaemonProcess keystone-admin processes={{ process_count }} threads={{ thread_count }} display-name=keystone-admin
     WSGIProcessGroup keystone-admin
 
     ErrorLog /var/log/apache2/keystone-admin.error.log

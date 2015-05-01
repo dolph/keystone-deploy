@@ -15,7 +15,7 @@ ServerLimit {{ process_count }}
 
 <VirtualHost *:80>
     WSGIScriptAlias / /var/echo/echo.py
-    WSGIDaemonProcess echo processes={{ process_count }} threads={{ thread_count }}  display-name=echo
+    WSGIDaemonProcess echo processes={{ process_count }} threads={{ thread_count }} display-name=echo
     WSGIProcessGroup echo
 
     ErrorLog /var/log/apache2/echo.error.log
