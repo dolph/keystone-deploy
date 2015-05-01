@@ -26,20 +26,21 @@ Listen 35357
     LogLevel info
     CustomLog /var/log/apache2/keystone-main.access.log combined
 
+    {% if apache24|failed -%}
+
     <Directory /var/keystone>
-
-        {% if apache24|success %}
-
-            Require all granted
-
-        {% else %}
-
-            Order allow,deny
-            Allow from all
-
-        {% endif %}
-
+        Require all granted
     </Directory>
+
+    {%- else -%}
+
+    <Directory /var/keystone>
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    {%- endif %}
+
 </VirtualHost>
 
 <VirtualHost *:35357>
@@ -51,18 +52,19 @@ Listen 35357
     LogLevel info
     CustomLog /var/log/apache2/keystone-admin.access.log combined
 
+    {% if apache24|failed -%}
+
     <Directory /var/keystone>
-
-        {% if apache24|success %}
-
-            Require all granted
-
-        {% else %}
-
-            Order allow,deny
-            Allow from all
-
-        {% endif %}
-
+        Require all granted
     </Directory>
+
+    {%- else -%}
+
+    <Directory /var/keystone>
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    {%- endif %}
+
 </VirtualHost>

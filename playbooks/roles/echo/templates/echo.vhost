@@ -22,18 +22,19 @@ ServerLimit {{ process_count }}
     LogLevel info
     CustomLog /var/log/apache2/echo.access.log combined
 
+    {% if apache24|failed -%}
+
     <Directory /var/echo>
-
-        {% if apache24|success %}
-
-            Require all granted
-
-        {% else %}
-
-            Order allow,deny
-            Allow from all
-
-        {% endif %}
-
+        Require all granted
     </Directory>
+
+    {%- else -%}
+
+    <Directory /var/echo>
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    {%- endif %}
+
 </VirtualHost>
