@@ -26,7 +26,7 @@ Listen 35357
     LogLevel info
     CustomLog /var/log/apache2/keystone-main.access.log combined
 
-    {% if apache24|failed -%}
+    {% if apache24|success -%}
 
     <Directory /var/keystone>
         Require all granted
@@ -52,7 +52,7 @@ Listen 35357
     LogLevel info
     CustomLog /var/log/apache2/keystone-admin.access.log combined
 
-    {% if apache24|failed -%}
+    {% if apache24|success -%}
 
     <Directory /var/keystone>
         Require all granted
