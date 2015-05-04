@@ -6,15 +6,8 @@
   with_items:
     - git
     - libffi-dev
+    - libssl-dev
     - python-dev
-  notify: restart services
-
-- name: detect apache version
-  shell: "apache2 -v | grep 'Apache/2.4'"
-  register: apache24
-  ignore_errors: True
-  tags:
-    - config
 
 - name: checkout source code
   git:
@@ -25,15 +18,6 @@
   with_items:
     - { repo: 'keystone', version: "{{ keystone_version | default('refs/heads/master') }}"  }
     - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('refs/heads/master') }}" }
-  notify: restart services
-
-- name: deploy virtual hosts
-  template:
-    src=apache/{{ item }}.vhost
-    dest=/etc/apache2/sites-enabled/{{ item }}.conf
-  with_items:
-    - keystone
-  notify: restart services
 
 - name: establish a configuration directory for keystone
   file:
@@ -42,7 +26,6 @@
     owner=www-data
     group=www-data
     mode=0755
-  notify: restart services
 
 - name: create dirs for wsgi scripts
   file:
@@ -53,7 +36,6 @@
     mode=0755
   with_items:
     - keystone
-  notify: restart services
 
 - name: deploy keystone wsgi scripts
   template:
@@ -62,7 +44,6 @@
     owner=www-data
     group=www-data
     mode=0400
-  notify: restart services
   with_items:
     - admin
     - main
@@ -78,7 +59,6 @@
     - keystone.conf
     - paste.ini
     - policy.json
-  notify: restart services
 
 - name: install extra python requirements
   pip:
@@ -88,14 +68,25 @@
     - pycrypto
     - python-memcached
     - six  # workaround for debian wheezy?
-  notify: restart services
 
 - name: install python projects
   shell: cd /opt/{{ item }} && python setup.py install
   with_items:
     - keystone
     - python-keystoneclient
-  notify: restart services
 
 - name: run database migrations
-  shell: keystone-manage db_sync
+  command: keystone-manage db_sync
+
+- name: test if apache is installed
+  command: which apache2
+  register: apache_installed
+  ignore_errors: true
+  tags:
+    - config
+
+- name: configure apache
+  include: apache.yaml
+  when: apache_installed.rc == 0
+  tags:
+    - config

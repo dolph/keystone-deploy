@@ -7,24 +7,6 @@
   with_items:
     - { repo: 'keystonemiddleware', version: "{{ keystonemiddleware_version | default('refs/heads/master') }}" }
     - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('refs/heads/master') }}" }
-  notify: restart services
-
-- name: detect apache version
-  shell: "apache2 -v | grep 'Apache/2.4'"
-  register: apache24
-  ignore_errors: True
-  tags:
-    - config
-
-- name: deploy virtual hosts
-  template:
-    src=apache/{{ item }}.vhost
-    dest=/etc/apache2/sites-enabled/{{ item }}.conf
-  with_items:
-    - echo
-  notify: restart services
-  tags:
-    - config
 
 - name: create dirs for wsgi scripts
   file:
@@ -35,7 +17,6 @@
     mode=0755
   with_items:
     - echo
-  notify: restart services
 
 - name: deploy an echo wsgi script
   template:
@@ -44,7 +25,6 @@
     owner=www-data
     group=www-data
     mode=0400
-  notify: restart services
   tags:
     - config
 
@@ -56,11 +36,21 @@
     - pycrypto
     - python-memcached
     - six  # workaround for debian wheezy?
-  notify: restart services
 
 - name: install python projects
   shell: cd /opt/{{ item }} && python setup.py install
   with_items:
     - python-keystoneclient
     - keystonemiddleware
-  notify: restart services
+
+- name: test if apache is installed
+  command: which apache2
+  register: apache_installed
+  tags:
+    - config
+
+- name: configure apache
+  include: apache.yaml
+  when: apache_installed
+  tags:
+    - config
