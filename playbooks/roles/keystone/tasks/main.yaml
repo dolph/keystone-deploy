@@ -16,7 +16,6 @@
   tags:
     - config
 
-
 - name: checkout source code
   git:
     repo=https://review.openstack.org/openstack/{{ item.repo }}.git
