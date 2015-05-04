@@ -16,9 +16,9 @@
   tags:
     - config
 
-- name: deploy a virtual hosts
+- name: deploy virtual hosts
   template:
-    src={{ item }}.vhost
+    src=apache/{{ item }}.vhost
     dest=/etc/apache2/sites-enabled/{{ item }}.conf
   with_items:
     - echo

@@ -27,9 +27,9 @@
     - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('refs/heads/master') }}" }
   notify: restart services
 
-- name: deploy a virtual hosts
+- name: deploy virtual hosts
   template:
-    src={{ item }}.vhost
+    src=apache/{{ item }}.vhost
     dest=/etc/apache2/sites-enabled/{{ item }}.conf
   with_items:
     - keystone
