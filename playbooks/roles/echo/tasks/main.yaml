@@ -9,6 +9,13 @@
     - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('refs/heads/master') }}" }
   notify: restart services
 
+- name: detect apache version
+  shell: "apache2 -v | grep 'Apache/2.4'"
+  register: apache24
+  ignore_errors: True
+  tags:
+    - config
+
 - name: deploy a virtual hosts
   template:
     src={{ item }}.vhost

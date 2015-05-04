@@ -8,13 +8,6 @@
     - libapache2-mod-wsgi
   notify: restart services
 
-- name: detect apache version
-  shell: "apache2 -v | grep 'Apache/2.4'"
-  register: apache24
-  ignore_errors: True
-  tags:
-  - config
-
 - name: remove the default virtual host
   file:
     path={{ item }}
