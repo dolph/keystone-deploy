@@ -1,4 +1,11 @@
+# deployment
 ansible
+
+# smoke testing
 python-keystoneclient
 requests
+
+# load testing
 dataset
+locustio
+pyzmq # for distributed locust
