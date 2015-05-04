@@ -1,0 +1,22 @@
+- name: detect apache version
+  shell: "apache2 -v | grep 'Apache/2.4'"
+  register: apache24
+  ignore_errors: True
+  tags:
+    - config
+
+- name: deploy virtual hosts
+  template:
+    src=apache/{{ item }}.vhost
+    dest=/etc/apache2/sites-enabled/{{ item }}.conf
+  with_items:
+    - echo
+  tags:
+    - config
+
+- name: restart apache
+  service:
+    name=apache2
+    state=restarted
+  tags:
+    - config
