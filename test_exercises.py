@@ -333,10 +333,9 @@ def create_users(args):
 
 
 def get_random_user():
-    with DATASET_LOCK:
-        db = dataset.connect('sqlite:///dataset.db')
-        for row in db.query('SELECT * FROM users ORDER BY RANDOM() LIMIT 1;'):
-            return row
+    db = dataset.connect('sqlite:///dataset.db')
+    for row in db.query('SELECT * FROM users ORDER BY RANDOM() LIMIT 1;'):
+        return row
 
 
 def user_authenticate(args):
