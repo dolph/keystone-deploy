@@ -322,15 +322,14 @@ def create_users(args):
         project = c.projects.create(domain='default', name=name)
 
         # create a user
-        password = unique()
         user = c.users.create(
-            domain='default', name=name, password=password)
+            domain='default', name=name, password=name)
 
         c.roles.grant(user=user, project=project, role=role)
 
         with DATASET_LOCK:
             db = dataset.connect('sqlite:///dataset.db')
-            db['users'].insert(dict(name=name, password=password))
+            db['users'].insert(dict(name=name))
 
 
 def get_random_user():
