@@ -1,5 +1,8 @@
 [db]
 vagrant@192.168.111.222
 
-[app]
+[keystone]
+vagrant@192.168.111.222
+
+[echo]
 vagrant@192.168.111.222
