@@ -7,6 +7,7 @@ MaxClients {{ virtual_hosts * process_count }}
 StartServers {{ virtual_hosts * process_count }}
 MinSpareServers {{ process_count }}
 MaxSpareServers {{ process_count }}
+MaxRequestWorkers {{ virtual_hosts * process_count * thread_count }}
 
 <VirtualHost *:80>
     WSGIScriptAlias / /var/echo/echo.py
