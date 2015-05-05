@@ -1,17 +1,12 @@
 {% set process_count = processes | default(16 * ansible_processor_vcpus) %}
 {% set thread_count = threads | default(64) %}
+{% set virtual_hosts = 1 %}
 
-ServerLimit {{ process_count }}
-
-<IfModule mpm_event_module>
-    StartServers {{ process_count }}
-    MinSpareThreads {{ (thread_count / 2)|round|int }}
-    MaxSpareThreads {{ thread_count }}
-    ThreadLimit {{ thread_count }}
-    ThreadsPerChild {{ thread_count }}
-    MaxRequestWorkers {{ process_count * thread_count }}
-    MaxConnectionsPerChild 0
-</IfModule>
+ServerLimit {{ virtual_hosts * process_count }}
+MaxClients {{ virtual_hosts * process_count }}
+StartServers {{ virtual_hosts * process_count }}
+MinSpareServers {{ process_count }}
+MaxSpareServers {{ process_count }}
 
 <VirtualHost *:80>
     WSGIScriptAlias / /var/echo/echo.py

@@ -5,8 +5,19 @@
     cache_valid_time=600
   with_items:
     - apache2
+    - apache2-mpm-prefork
     - libapache2-mod-wsgi
   notify: restart services
+
+- name: disable mpm_event
+  command: a2dismod mpm_event
+
+- name: disable mpm_worker
+  command: a2dismod mpm_worker
+
+- name: enable mpm_prefork
+  command: a2enmod mpm_prefork
+  ignore_errors: true
 
 - name: remove the default virtual host
   file:

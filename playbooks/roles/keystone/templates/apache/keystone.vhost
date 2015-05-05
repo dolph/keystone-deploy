@@ -3,16 +3,10 @@
 {% set virtual_hosts = 2 %}
 
 ServerLimit {{ virtual_hosts * process_count }}
-
-<IfModule mpm_event_module>
-    StartServers {{ virtual_hosts * process_count }}
-    MinSpareThreads {{ (thread_count / 2)|round|int }}
-    MaxSpareThreads {{ thread_count }}
-    ThreadLimit {{ thread_count }}
-    ThreadsPerChild {{ thread_count }}
-    MaxRequestWorkers {{ virtual_hosts * process_count * thread_count }}
-    MaxConnectionsPerChild 0
-</IfModule>
+MaxClients {{ virtual_hosts * process_count }}
+StartServers {{ virtual_hosts * process_count }}
+MinSpareServers {{ process_count }}
+MaxSpareServers {{ process_count }}
 
 Listen 5000
 Listen 35357
