@@ -24,34 +24,41 @@ class WebsiteTasks(locust.TaskSet):
 
         self.create_user()
         self.authenticate()
+        self.validate()
 
-    @locust.task(99)
-    def authenticate(self):
-        db = dataset.connect('sqlite:///dataset.db')
-        for row in db.query('SELECT * FROM users ORDER BY RANDOM() LIMIT 1;'):
-            user = row
-            break
+    def get_token(self, user_name, password, project_name=None):
+        d = {
+            'auth': {
+                'identity': {
+                    'methods': [
+                        'password'
+                    ],
+                    'password': {
+                        'user': {
+                            'name': user_name,
+                            'password': password,
+                            'domain': {
+                                'id': 'default'}
+                        }
+                    }
+                }
+            }
+        }
 
-        auth_token = self.get_token(
-            user['name'], user['name'], project_name=user['name'])
+        if project_name:
+            d['auth']['scope'] = {
+                'project': {
+                    'name': project_name,
+                    'domain': {
+                        'id': 'default'}}}
 
-        with DATASET_LOCK:
-            db = dataset.connect('sqlite:///dataset.db')
-            db['tokens'].insert(dict(value=auth_token))
-
-    @locust.task(99)
-    def validate(self):
-        db = dataset.connect('sqlite:///dataset.db')
-        for row in db.query('SELECT * FROM tokens ORDER BY RANDOM() LIMIT 1;'):
-            token = row['value']
-
-        headers = HEADERS.copy()
-        headers['X-Auth-Token'] = self.admin_token
-        headers['X-Subject-Token'] = token
-        r = self.client.get(
+        r = self.client.post(
             '/v3/auth/tokens',
-            headers=headers)
-        if r.status_code != 200:
+            data=json.dumps(d),
+            headers=HEADERS)
+        if r.status_code == 201:
+            return r.headers['X-Subject-Token']
+        else:
             LOG.error('%s: %s', r.status_code, r.content)
 
     @locust.task(1)
@@ -98,39 +105,33 @@ class WebsiteTasks(locust.TaskSet):
             db = dataset.connect('sqlite:///dataset.db')
             db['users'].insert(dict(name=name))
 
-    def get_token(self, user_name, password, project_name=None):
-        d = {
-            'auth': {
-                'identity': {
-                    'methods': [
-                        'password'
-                    ],
-                    'password': {
-                        'user': {
-                            'name': user_name,
-                            'password': password,
-                            'domain': {
-                                'id': 'default'}
-                        }
-                    }
-                }
-            }
-        }
+    @locust.task(99)
+    def authenticate(self):
+        db = dataset.connect('sqlite:///dataset.db')
+        for row in db.query('SELECT * FROM users ORDER BY RANDOM() LIMIT 1;'):
+            user = row
+            break
 
-        if project_name:
-            d['auth']['scope'] = {
-                'project': {
-                    'name': project_name,
-                    'domain': {
-                        'id': 'default'}}}
+        auth_token = self.get_token(
+            user['name'], user['name'], project_name=user['name'])
 
-        r = self.client.post(
+        with DATASET_LOCK:
+            db = dataset.connect('sqlite:///dataset.db')
+            db['tokens'].insert(dict(value=auth_token))
+
+    @locust.task(99)
+    def validate(self):
+        db = dataset.connect('sqlite:///dataset.db')
+        for row in db.query('SELECT * FROM tokens ORDER BY RANDOM() LIMIT 1;'):
+            token = row['value']
+
+        headers = HEADERS.copy()
+        headers['X-Auth-Token'] = self.admin_token
+        headers['X-Subject-Token'] = token
+        r = self.client.get(
             '/v3/auth/tokens',
-            data=json.dumps(d),
-            headers=HEADERS)
-        if r.status_code == 201:
-            return r.headers['X-Subject-Token']
-        else:
+            headers=headers)
+        if r.status_code != 200:
             LOG.error('%s: %s', r.status_code, r.content)
 
 
