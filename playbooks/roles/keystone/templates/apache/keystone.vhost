@@ -1,5 +1,5 @@
-{% set process_count = 2 * ansible_processor_vcpus %}
-{% set thread_count = 1 %}
+{% set process_count = processes | default(2 * ansible_processor_vcpus) %}
+{% set thread_count = threads | default(1) %}
 {% set virtual_hosts = 2 %}
 
 ServerLimit {{ virtual_hosts * process_count }}

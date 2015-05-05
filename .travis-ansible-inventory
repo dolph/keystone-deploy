@@ -1,8 +1,16 @@
 [keystone]
 localhost
 
+[keystone:vars]
+processes = 1
+threads = 1
+
 [echo]
 localhost
+
+[keystone:vars]
+processes = 1
+threads = 1
 
 [db]
 localhost
