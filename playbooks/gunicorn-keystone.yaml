@@ -1,0 +1,6 @@
+- hosts: keystone
+  roles:
+  - nginx
+  - supervisor
+  - gunicorn
+  - keystone
