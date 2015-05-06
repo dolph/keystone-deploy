@@ -9,17 +9,29 @@
     - libapache2-mod-wsgi
   notify: restart services
 
+- name: check if mpm_event is enabled
+  stat: path=/etc/apache2/mods-enabled/mpm_event.load
+  register: mpm_event
+
 - name: disable mpm_event
   command: a2dismod mpm_event
-  ignore_errors: true
+  when: mpm_event.stat.exists
+
+- name: check if mpm_worker is enabled
+  stat: path=/etc/apache2/mods-enabled/mpm_worker.load
+  register: mpm_worker
 
 - name: disable mpm_worker
   command: a2dismod mpm_worker
-  ignore_errors: true
+  when: mpm_worker.stat.exists
+
+- name: check if mpm_prefork is enabled
+  stat: path=/etc/apache2/mods-enabled/mpm_prefork.load
+  register: mpm_prefork
 
 - name: enable mpm_prefork
   command: a2enmod mpm_prefork
-  ignore_errors: true
+  when: not mpm_prefork.stat.exists
 
 - name: remove the default virtual host
   file:
