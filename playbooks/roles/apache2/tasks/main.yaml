@@ -11,9 +11,11 @@
 
 - name: disable mpm_event
   command: a2dismod mpm_event
+  ignore_errors: true
 
 - name: disable mpm_worker
   command: a2dismod mpm_worker
+  ignore_errors: true
 
 - name: enable mpm_prefork
   command: a2enmod mpm_prefork
