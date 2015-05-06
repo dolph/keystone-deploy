@@ -33,13 +33,22 @@ HEADERS = {
 
 
 class WebsiteTasks(locust.TaskSet):
-    def on_start(self):
+    def on_start(self, retry=True):
         self.admin_token = self.get_token(
             'admin', 'password', project_name='admin')
 
-        self.create_user()
-        self.authenticate()
-        self.validate()
+        if not self.create_user():
+            if retry:
+                return self.on_start(retry=False)
+            raise Exception('Failed to create initial user.')
+        if not self.authenticate():
+            if retry:
+                return self.on_start(retry=False)
+            raise Exception('Failed to authenticate initial user.')
+        if not self.validate():
+            if retry:
+                return self.on_start(retry=False)
+            raise Exception('Failed to validate initial user.')
 
     def get_token(self, user_name, password, project_name=None):
         d = {
@@ -71,10 +80,11 @@ class WebsiteTasks(locust.TaskSet):
             '/v3/auth/tokens',
             data=json.dumps(d),
             headers=HEADERS)
-        if r.status_code == 201:
-            return r.headers['X-Subject-Token']
-        else:
-            LOG.error('%s: %s', r.status_code, r.content)
+        if r.status_code != 201:
+            LOG.error('%s creating token: %s', r.status_code, r.content)
+            return False
+
+        return r.headers['X-Subject-Token']
 
     @locust.task(1)
     def create_user(self):
@@ -87,6 +97,9 @@ class WebsiteTasks(locust.TaskSet):
             '/v3/roles',
             name='/v3/roles?name={role_name}',
             headers=headers)
+        if r.status_code != 200:
+            LOG.error('%s fetching member role: %s', r.status_code, r.content)
+            return False
         role = json.loads(r.content)['roles'][0]
 
         r = self.client.post(
@@ -96,6 +109,9 @@ class WebsiteTasks(locust.TaskSet):
                     'domain_id': 'default',
                     'name': name}}),
             headers=headers)
+        if r.status_code != 201:
+            LOG.error('%s creating project: %s', r.status_code, r.content)
+            return False
         project = json.loads(r.content)['project']
 
         r = self.client.post(
@@ -106,6 +122,9 @@ class WebsiteTasks(locust.TaskSet):
                     'password': name,
                     'name': name}}),
             headers=headers)
+        if r.status_code != 201:
+            LOG.error('%s creating project: %s', r.status_code, r.content)
+            return False
         user = json.loads(r.content)['user']
 
         r = self.client.put(
@@ -115,8 +134,13 @@ class WebsiteTasks(locust.TaskSet):
                 'role': role['id']},
             name='/v3/projects/{project_id}/users/{user_id}/roles/{role_id}',
             headers=headers)
+        if r.status_code != 204:
+            LOG.error('%s assigning role: %s', r.status_code, r.content)
+            return False
 
         USERS.append(name)
+
+        return name
 
     @locust.task(99)
     def authenticate(self):
@@ -126,6 +150,8 @@ class WebsiteTasks(locust.TaskSet):
             user_name, user_name, project_name=user_name)
 
         TOKENS.append(token)
+
+        return token
 
     @locust.task(99)
     def validate(self):
@@ -138,7 +164,10 @@ class WebsiteTasks(locust.TaskSet):
             '/v3/auth/tokens',
             headers=headers)
         if r.status_code != 200:
-            LOG.error('%s: %s', r.status_code, r.content)
+            LOG.error('%s validating token: %s', r.status_code, r.content)
+            return False
+
+        return True
 
 
 class WebsiteUser(locust.HttpLocust):
