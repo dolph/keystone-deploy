@@ -1,16 +1,31 @@
 import json
 import logging
-import threading
+import random
 import uuid
 
-import dataset
 import locust
 
 
 logging.basicConfig()
 LOG = logging.getLogger(__name__)
 
-DATASET_LOCK = threading.Lock()
+
+MAX_LIST_LENGTH = 10000
+
+
+class ConstrainedList(list):
+    """A memory-conscious list."""
+    def append(self, x):
+        if len(self) > MAX_LIST_LENGTH:
+            self.pop(0)
+        return super(ConstrainedList, self).append(x)
+
+    def random(self):
+        return random.choice(self)
+
+
+TOKENS = ConstrainedList()
+USERS = ConstrainedList()
 
 HEADERS = {
     'Accept': 'application/json',
@@ -101,29 +116,20 @@ class WebsiteTasks(locust.TaskSet):
             name='/v3/projects/{project_id}/users/{user_id}/roles/{role_id}',
             headers=headers)
 
-        with DATASET_LOCK:
-            db = dataset.connect('sqlite:///dataset.db')
-            db['users'].insert(dict(name=name))
+        USERS.append(name)
 
     @locust.task(99)
     def authenticate(self):
-        db = dataset.connect('sqlite:///dataset.db')
-        for row in db.query('SELECT * FROM users ORDER BY RANDOM() LIMIT 1;'):
-            user = row
-            break
+        user_name = USERS.random()
 
-        auth_token = self.get_token(
-            user['name'], user['name'], project_name=user['name'])
+        token = self.get_token(
+            user_name, user_name, project_name=user_name)
 
-        with DATASET_LOCK:
-            db = dataset.connect('sqlite:///dataset.db')
-            db['tokens'].insert(dict(value=auth_token))
+        TOKENS.append(token)
 
     @locust.task(99)
     def validate(self):
-        db = dataset.connect('sqlite:///dataset.db')
-        for row in db.query('SELECT * FROM tokens ORDER BY RANDOM() LIMIT 1;'):
-            token = row['value']
+        token = TOKENS.random()
 
         headers = HEADERS.copy()
         headers['X-Auth-Token'] = self.admin_token
