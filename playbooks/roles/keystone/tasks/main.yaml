@@ -18,6 +18,7 @@
   with_items:
     - { repo: 'keystone', version: "{{ keystone_version | default('refs/heads/master') }}"  }
     - { repo: 'python-keystoneclient', version: "{{ keystoneclient_version | default('refs/heads/master') }}" }
+    - { repo: 'keystoneauth', version: "{{ keystoneauth_version | default('refs/heads/master') }}"  }
 
 - name: establish a configuration directory for keystone
   file:
@@ -70,10 +71,14 @@
     - six  # workaround for debian wheezy?
 
 - name: install python projects
-  shell: cd /opt/{{ item }} && python setup.py install
+  pip:
+    name=/opt/{{ item }}
+    state=present
+    extra_args="-e"
   with_items:
     - keystone
     - python-keystoneclient
+    - keystoneauth
 
 - name: run database migrations
   command: keystone-manage db_sync
